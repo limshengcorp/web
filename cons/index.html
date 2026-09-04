@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <!-- 导航标签页：多行自适应排列 -->
+        <!-- 导航标签页 -->
         <div class="flex flex-wrap border-b border-slate-200 gap-1.5 pb-2">
             <button id="navWorkersBtn" type="button" onclick="switchMainTab('workers')"
                 class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer">
@@ -43,6 +43,7 @@
                 class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer">
                 📋 工人打卡/借款明细
             </button>
+            <!-- 默认完全隐藏的敏感模块标签 -->
             <button id="navSubconBtn" type="button" onclick="switchMainTab('subcon')"
                 class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition items-center gap-1.5 cursor-pointer hidden">
                 📑 Subcon 分包与垫付
@@ -76,7 +77,6 @@
             </div>
 
             <form onsubmit="handleAttendanceSubmit(event)" class="space-y-4">
-                
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="text-xs font-bold text-slate-700">📌 第一步：勾选出勤工人：</label>
@@ -162,13 +162,13 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">快捷点击借款数额 (RM)：</label>
                     <div class="flex flex-wrap gap-2">
-                        <!-- 统一取消了特殊黄色样式 -->
-                        <button type="button" onclick="setAdvAmount(50)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 50</button>
-                        <button type="button" onclick="setAdvAmount(100)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 100</button>
-                        <button type="button" onclick="setAdvAmount(200)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 200</button>
-                        <button type="button" onclick="setAdvAmount(300)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 300</button>
-                        <button type="button" onclick="setAdvAmount(500)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 500</button>
-                        <button type="button" onclick="setAdvAmount(1000)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 1000</button>
+                        <button type="button" onclick="setAdvAmount(50)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 50</button>
+                        <button type="button" onclick="setAdvAmount(100)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 100</button>
+                        <button type="button" onclick="setAdvAmount(200)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 200</button>
+                        <button type="button" onclick="setAdvAmount(300)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 300</button>
+                        <button type="button" onclick="setAdvAmount(500)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 500</button>
+                        <!-- 调整为与其他统一的样式 -->
+                        <button type="button" onclick="setAdvAmount(1000)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 1000</button>
                     </div>
                 </div>
 
@@ -195,11 +195,27 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
                 <div>
                     <h3 class="font-bold text-slate-900 text-sm sm:text-base">📊 月度工钱与借款汇总结算单</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">工钱合计 - 借支代扣 = 最终应发现金 (Net Pay) [注：含当月底部 TOTAL 总计]</p>
+                    <p class="text-xs text-slate-400 mt-0.5">工钱合计 - 借支代扣 = 最终应发现金 (Net Pay) [注：当月无工时工人自动隐藏]</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <label class="text-xs font-semibold text-slate-600">结算月份:</label>
                     <input type="month" id="filterMonth" onchange="renderWorkerMonthlySummary()" class="px-3 py-1.5 border rounded-lg text-xs bg-white font-bold text-indigo-900">
+                </div>
+            </div>
+
+            <!-- 月度总计面板 -->
+            <div class="grid grid-cols-3 gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
+                <div>
+                    <div class="text-[11px] text-slate-500 font-semibold">借钱与代扣总额</div>
+                    <div class="text-sm sm:text-base font-black text-amber-700 font-mono" id="monthlyTotalDeduction">RM 0.00</div>
+                </div>
+                <div>
+                    <div class="text-[11px] text-slate-500 font-semibold">应发总额 (Gross)</div>
+                    <div class="text-sm sm:text-base font-black text-slate-800 font-mono" id="monthlyTotalGross">RM 0.00</div>
+                </div>
+                <div>
+                    <div class="text-[11px] text-slate-500 font-semibold">实发净额总额 (Net)</div>
+                    <div class="text-sm sm:text-base font-black text-indigo-900 font-mono" id="monthlyTotalNet">RM 0.00</div>
                 </div>
             </div>
 
@@ -217,7 +233,6 @@
                         </tr>
                     </thead>
                     <tbody id="workerMonthlyBody" class="divide-y divide-slate-100"></tbody>
-                    <tfoot id="workerMonthlyFoot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300"></tfoot>
                 </table>
             </div>
 
@@ -234,46 +249,43 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
                 <div>
                     <h2 class="text-base font-bold text-slate-900">📋 工人每日考勤与借支全量明细</h2>
-                    <p class="text-xs text-slate-500">支持按月份或具体日子搜索，可编辑、单条或批量修改考勤记录</p>
+                    <p class="text-xs text-slate-500">按年月自动收缩分组，支持月份与日期多维搜索，支持批量编辑时薪与工时</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="flex items-center gap-1">
-                        <label class="text-xs font-semibold text-slate-600">按月份:</label>
-                        <input type="month" id="detailSearchMonth" onchange="renderDailyDetailTable()" class="px-2 py-1 border rounded-xl text-xs bg-white font-bold text-indigo-900">
+                        <input type="month" id="detailSearchMonth" onchange="renderDailyDetailTable()" class="px-3 py-1.5 border rounded-xl text-xs bg-white font-bold text-indigo-900" title="按月份搜索">
+                        <input type="date" id="detailSearchDate" onchange="renderDailyDetailTable()" placeholder="搜索具体日期" class="px-3 py-1.5 border rounded-xl text-xs bg-white">
+                        <button onclick="document.getElementById('detailSearchDate').value=''; document.getElementById('detailSearchMonth').value=''; renderDailyDetailTable();" class="px-2 py-1.5 bg-slate-100 text-xs rounded-xl text-slate-600 cursor-pointer">重置</button>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <label class="text-xs font-semibold text-slate-600">按日子:</label>
-                        <input type="date" id="detailSearchDate" onchange="renderDailyDetailTable()" class="px-2 py-1 border rounded-xl text-xs bg-white">
-                        <button onclick="document.getElementById('detailSearchDate').value=''; document.getElementById('detailSearchMonth').value=''; renderDailyDetailTable();" class="px-2 py-1 bg-slate-100 text-xs rounded-xl text-slate-600 cursor-pointer">重置</button>
-                    </div>
-                    <select id="detailWorkerFilter" onchange="renderDailyDetailTable()" class="px-2 py-1 border rounded-xl text-xs bg-white">
+                    <select id="detailWorkerFilter" onchange="renderDailyDetailTable()" class="px-3 py-1.5 border rounded-xl text-xs bg-white">
                         <option value="">全部工人</option>
                     </select>
-                    <select id="detailSiteFilter" onchange="renderDailyDetailTable()" class="px-2 py-1 border rounded-xl text-xs bg-white">
+                    <select id="detailSiteFilter" onchange="renderDailyDetailTable()" class="px-3 py-1.5 border rounded-xl text-xs bg-white">
                         <option value="">全部工地</option>
                     </select>
                 </div>
             </div>
 
+            <div class="flex justify-between items-center">
+                <h3 class="text-xs font-bold text-indigo-900 uppercase">工人工时出勤流水 (按年月收缩分组)</h3>
+                <button type="button" onclick="openBatchEditModal()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs cursor-pointer">
+                    ⚡ 勾选多选一键修改时薪
+                </button>
+            </div>
+
             <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-bold text-indigo-900 uppercase">工人工时出勤流水 (支持多选批量修改)</h3>
-                    <button type="button" onclick="openBatchEditModal()" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg cursor-pointer">
-                        ☑️ 批量修改勾选项工时
-                    </button>
-                </div>
                 <div id="dailyAttendanceGroupContainer" class="space-y-2"></div>
             </div>
 
             <div class="space-y-3 pt-4 border-t">
-                <h3 class="text-xs font-bold text-amber-900 uppercase">工人预支借钱 / 代扣明细</h3>
+                <h3 class="text-xs font-bold text-amber-900 uppercase">工人预支借钱 / 代扣明细 (按年月收缩分组)</h3>
                 <div id="dailyAdvanceGroupContainer" class="space-y-2"></div>
             </div>
         </div>
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 3: Subcon 分包与垫付管理 (默认隐藏，需密码解锁)          -->
+    <!-- SECTION 3: Subcon 分包与垫付管理                                 -->
     <!-- ============================================================== -->
     <div id="tabSubcon" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -351,7 +363,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">具体支付渠道</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">具体付款方式/渠道</label>
                         <select id="payMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold">
                             <option value="CASH">💵 现金 (CASH)</option>
                             <option value="TNG">📱 Touch 'n Go eWallet</option>
@@ -385,7 +397,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 4: Marco 现金收支与 Claim 模块 (默认隐藏，需密码解锁)    -->
+    <!-- SECTION 4: Marco 现金收支与 Claim 模块                           -->
     <!-- ============================================================== -->
     <div id="tabPettyCash" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -407,7 +419,7 @@
         </div>
 
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
-            <h2 class="text-base font-bold text-slate-900 border-b pb-2.5">✍️ 记录现金流水 (含支付方式选择)</h2>
+            <h2 class="text-base font-bold text-slate-900 border-b pb-2.5">✍️ 记录现金流水 (买料/维修垫付 或 工地收现)</h2>
             <form onsubmit="handlePettyCashSubmit(event)" class="space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div>
@@ -422,13 +434,8 @@
                         <input type="text" id="pettyShopName" required placeholder="如: 99 Speedmart / 某五金店" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium text-indigo-900">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">支付方式</label>
-                        <select id="pettyMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold text-indigo-900">
-                            <option value="CASH">💵 现金 (CASH)</option>
-                            <option value="TNG">📱 Touch 'n Go eWallet</option>
-                            <option value="HLB">🏦 Hong Leong Bank (HLB)</option>
-                            <option value="HSBC">🏦 HSBC Bank</option>
-                        </select>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">发生日期</label>
+                        <input type="date" id="pettyDate" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">金额 (RM)</label>
@@ -436,10 +443,19 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">发生日期</label>
-                        <input type="date" id="pettyDate" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">发生时间</label>
+                        <input type="time" id="pettyTime" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">付款方式 (如CASH/HLB)</label>
+                        <select id="pettyPayMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold">
+                            <option value="CASH">💵 现金 (CASH)</option>
+                            <option value="TNG">📱 Touch 'n Go</option>
+                            <option value="HLB">🏦 Hong Leong Bank</option>
+                            <option value="HSBC">🏦 HSBC Bank</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">分类</label>
@@ -472,7 +488,7 @@
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-3">
                 <div>
-                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">📑 Marco 现金流水账本 (支持编辑修改)</h3>
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">📑 Marco 现金流水账本 (按年月收缩分组与查账)</h3>
                     <p class="text-xs text-slate-500">公司出钱报销后，书记点击“确认 Claimed”并填入对应 PV 编号</p>
                 </div>
             </div>
@@ -539,12 +555,12 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 6: 基础名录管理 (含员工隐藏与解除隐藏恢复功能)           -->
+    <!-- SECTION 6: 基础名录管理                                          -->
     <!-- ============================================================== -->
     <div id="tabManage" class="space-y-4 sm:space-y-6 hidden">
         
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
-            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">👤 预先注册工人档案 (支持隐藏冗余员工与恢复)</h2>
+            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">👤 预先注册工人档案 (带工种专属颜色类型)</h2>
             <form onsubmit="handleNewWorkerSubmit(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">工人全名</label>
@@ -578,7 +594,6 @@
             </form>
 
             <div class="overflow-x-auto pt-3 border-t">
-                <h3 class="text-xs font-bold text-slate-600 mb-2">活跃员工列表 (Supervisor 常用点选项)：</h3>
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 font-semibold">
@@ -593,15 +608,10 @@
                     <tbody id="registeredWorkersBody" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
-
-            <div class="pt-3 border-t">
-                <h3 class="text-xs font-bold text-slate-600 mb-2">已隐藏员工列表 (可随时解除隐藏恢复)：</h3>
-                <div id="archivedWorkersBody" class="space-y-2"></div>
-            </div>
         </div>
 
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
-            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">🏢 预先添加与管理工地名称</h2>
+            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">🏢 预先添加与管理工地名称 (支持隐藏、恢复与彻底删除)</h2>
             <form onsubmit="handleNewSiteSubmit(event)" class="flex gap-2">
                 <input type="text" id="newSiteName" required placeholder="输入新工地名，如: Kamunting 新厂房B区" class="flex-1 px-3 py-2 border rounded-xl text-sm">
                 <button type="submit" class="px-5 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-sm cursor-pointer">
@@ -613,7 +623,7 @@
                 <div id="siteTagsArea" class="space-y-2"></div>
             </div>
             <div class="pt-3 border-t">
-                <h3 class="text-xs font-bold text-slate-600 mb-1">已隐藏工地列表：</h3>
+                <h3 class="text-xs font-bold text-slate-600 mb-1">已隐藏工地列表 (可解除隐藏恢复，或直接彻底删除)：</h3>
                 <div id="archivedSiteTagsArea" class="space-y-2"></div>
             </div>
         </div>
@@ -711,7 +721,7 @@
         </div>
         <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">VO 项目内容描述</label>
-            <input type="text" id="voDesc" placeholder="例如：加做水沟盖、加高挡土墙等" class="w-full px-3 py-2 border rounded-xl text-sm">
+            <input type="text" id="voDesc" placeholder="例如：加做水沟盖等" class="w-full px-3 py-2 border rounded-xl text-sm">
         </div>
         <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">追加金额 (RM)</label>
@@ -727,7 +737,7 @@
 <!-- 弹窗 5: 编辑修改考勤记录工时与备注 -->
 <div id="editAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时与备注 (自动按最新时薪重算)</h3>
+        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时与备注</h3>
         <input type="hidden" id="editAttId">
         <div class="text-xs text-slate-500">工人: <span id="editAttWorkerName" class="font-bold text-slate-800"></span> | 工地: <span id="editAttSiteName" class="font-bold text-slate-800"></span></div>
         <div>
@@ -740,62 +750,28 @@
         </div>
         <div class="flex justify-end gap-2 pt-2 border-t">
             <button type="button" onclick="closeEditAttendanceModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitEditAttendance()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存更新</button>
+            <button type="button" onclick="submitEditAttendance()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
         </div>
     </div>
 </div>
 
-<!-- 弹窗 6: 批量修改勾选项工时弹窗 -->
-<div id="batchEditAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">⚡ 批量修改勾选项工时</h3>
-        <p class="text-xs text-slate-500">将为所有在明细表中勾选了复选框的考勤记录统一更新工时（并自动按各自最新时薪重新计算金额）：</p>
+<!-- 弹窗 6: 批量勾选一键修改日薪/时薪 -->
+<div id="batchEditModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-3">
+        <h3 class="text-base font-bold text-slate-900 border-b pb-2">⚡ 一键批量修改所选记录的工钱</h3>
+        <p class="text-xs text-slate-500">将为已勾选的考勤记录按当前填写的日薪重新计算工钱并更新：</p>
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">统一更新为工作时长 (小时)</label>
-            <input type="number" step="0.5" id="batchAttHours" value="8" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">新日薪标准 (8h/RM)</label>
+            <input type="number" step="0.5" id="batchNewDailyRate" placeholder="例如: 85" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
         </div>
         <div class="flex justify-end gap-2 pt-2 border-t">
             <button type="button" onclick="closeBatchEditModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitBatchEditAttendance()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">确认批量修改</button>
-        </div>
-    </div>
-</div>
-
-<!-- 弹窗 7: 编辑修改 Marco 现金流水记录弹窗 -->
-<div id="editPettyCashModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改 Marco 现金流水记录</h3>
-        <input type="hidden" id="editPettyId">
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">公司 / 店铺名称</label>
-            <input type="text" id="editPettyShopName" class="w-full px-3 py-2 border rounded-xl text-sm">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">支付方式</label>
-            <select id="editPettyMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold">
-                <option value="CASH">💵 现金 (CASH)</option>
-                <option value="TNG">📱 Touch 'n Go eWallet</option>
-                <option value="HLB">🏦 Hong Leong Bank (HLB)</option>
-                <option value="HSBC">🏦 HSBC Bank</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">金额 (RM)</label>
-            <input type="number" step="0.01" id="editPettyAmount" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">具体内容原因</label>
-            <input type="text" id="editPettyDescription" class="w-full px-3 py-2 border rounded-xl text-sm">
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t">
-            <button type="button" onclick="closeEditPettyCashModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitEditPettyCash()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
+            <button type="button" onclick="submitBatchEdit()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">确认批量更新</button>
         </div>
     </div>
 </div>
 
 <script>
-    <!-- 接入你专属的 Supabase 真实连接参数 -->
     const SUPABASE_URL = "https://xiplmlalurpnrnzeaywp.supabase.co/rest/v1";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpcGxtbGFsdXJwbnJuemVheXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mjk2NjYsImV4cCI6MjEwNDAwNTY2Nn0.uIRTO0MAvQHGzQzdWwWZCufeMsnuU9LQTHUOI60lTXQ";
 
@@ -828,6 +804,7 @@
         document.getElementById('attWorkDate').value = todayStr;
         document.getElementById('advDate').value = todayStr;
         document.getElementById('filterMonth').value = monthStr;
+        document.getElementById('detailSearchMonth').value = monthStr;
         document.getElementById('pettyDate').value = todayStr;
         const subDate = document.getElementById('subContractDate');
         if(subDate) subDate.value = todayStr;
@@ -944,7 +921,6 @@
         return `<span class="px-2 py-0.5 rounded text-[11px] ${bgClass}">${escapeHtml(cleanType)}</span>`;
     }
 
-    // 2. 基础名录
     async function fetchWorkers() {
         try {
             const res = await fetch(`${SUPABASE_URL}/workers?order=name.asc`, { headers: reqHeaders });
@@ -1076,42 +1052,23 @@
 
     function renderWorkerAdminTable() {
         const tbody = document.getElementById('registeredWorkersBody');
-        const archivedContainer = document.getElementById('archivedWorkersBody');
         tbody.innerHTML = '';
-        archivedContainer.innerHTML = '';
-
-        const activeWorkers = workersList.filter(w => w.status === 'active');
-        const archivedWorkers = workersList.filter(w => w.status === 'inactive');
-
-        activeWorkers.forEach(w => {
+        workersList.forEach(w => {
+            const isActive = w.status === 'active';
             tbody.innerHTML += `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2.5 font-bold text-slate-800">${escapeHtml(w.name)}</td>
+                <tr class="hover:bg-slate-50 ${!isActive ? 'opacity-60 bg-slate-100' : ''}">
+                    <td class="p-2.5 font-bold text-slate-800">${escapeHtml(w.name)} ${!isActive ? '<span class="text-xs text-rose-500">(已注销)</span>' : ''}</td>
                     <td class="p-2.5">${getWorkerTypeBadge(w.worker_type)}</td>
                     <td class="p-2.5 text-slate-500 font-mono text-xs">${escapeHtml(w.ic_passport)}</td>
                     <td class="p-2.5 font-semibold text-indigo-700">RM ${Number(w.daily_rate).toFixed(2)}</td>
                     <td class="p-2.5 text-slate-600 font-mono">RM ${Number(w.hourly_rate).toFixed(2)}/h</td>
                     <td class="p-2.5 text-right space-x-2">
                         <button onclick="openEditWorkerModal(${w.id})" class="text-indigo-600 hover:underline cursor-pointer">编辑</button>
-                        <button onclick="archiveWorker(${w.id})" class="text-rose-500 hover:underline cursor-pointer">隐藏</button>
+                        ${isActive ? `<button onclick="archiveWorker(${w.id})" class="text-rose-500 hover:underline cursor-pointer">注销</button>` : `<button onclick="restoreWorker(${w.id})" class="text-emerald-600 hover:underline cursor-pointer">恢复</button>`}
                     </td>
                 </tr>
             `;
         });
-
-        if (archivedWorkers.length === 0) {
-            archivedContainer.innerHTML = '<div class="text-[11px] text-slate-400">无隐藏员工</div>';
-        } else {
-            archivedWorkers.forEach(w => {
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-2 bg-amber-50/50 border border-amber-200 rounded-xl text-xs";
-                div.innerHTML = `
-                    <span class="text-slate-500 line-through">👤 ${escapeHtml(w.name)} (${escapeHtml(w.worker_type || '中工')}) - RM ${Number(w.daily_rate).toFixed(0)}/天</span>
-                    <button type="button" onclick="restoreWorker(${w.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg cursor-pointer">解除隐藏 (恢复)</button>
-                `;
-                archivedContainer.appendChild(div);
-            });
-        }
     }
 
     function openEditWorkerModal(id) {
@@ -1156,7 +1113,7 @@
     }
 
     async function archiveWorker(id) {
-        const pwd = prompt("🔒 管理操作（安全锁）：请输入隐藏密码：");
+        const pwd = prompt("🔒 管理操作（安全锁）：请输入注销密码：");
         if (pwd !== "2321" && pwd !== "8888") return alert("❌ 密码错误！");
         await fetch(`${SUPABASE_URL}/workers?id=eq.${id}`, {
             method: "PATCH",
@@ -1217,7 +1174,6 @@
         alert(`工地 [${siteName}] 已彻底删除！`);
     }
 
-    // 3. 出勤打卡与月结
     async function fetchAttendance() {
         try {
             const res = await fetch(`${SUPABASE_URL}/attendance_records?order=work_date.desc,id.desc`, { headers: reqHeaders });
@@ -1323,19 +1279,16 @@
         alert('借款/代扣已成功登记！');
     }
 
-    // 月度结算单（含底部总计 Total 行）
     function renderWorkerMonthlySummary() {
         const month = document.getElementById('filterMonth').value;
         const tbody = document.getElementById('workerMonthlyBody');
-        const tfoot = document.getElementById('workerMonthlyFoot');
         const cards = document.getElementById('workerMonthlyCards');
         tbody.innerHTML = '';
-        tfoot.innerHTML = '';
         cards.innerHTML = '';
 
         let displayedCount = 0;
         let sumGross = 0;
-        let sumDeduct = 0;
+        let sumDeduction = 0;
         let sumNet = 0;
 
         workersList.forEach(w => {
@@ -1360,7 +1313,7 @@
 
             const netPay = grossPay - totalDeductions;
             sumGross += grossPay;
-            sumDeduct += totalDeductions;
+            sumDeduction += totalDeductions;
             sumNet += netPay;
 
             tbody.innerHTML += `
@@ -1392,22 +1345,17 @@
             `;
         });
 
+        // 填充顶部的总计金额
+        document.getElementById('monthlyTotalGross').innerText = `RM ${sumGross.toFixed(2)}`;
+        document.getElementById('monthlyTotalDeduction').innerText = `RM ${sumDeduction.toFixed(2)}`;
+        document.getElementById('monthlyTotalNet').innerText = `RM ${sumNet.toFixed(2)}`;
+
         if (displayedCount === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">所选月份暂无工人出勤记录</td></tr>';
             cards.innerHTML = '<div class="p-4 text-center text-slate-400 text-xs">所选月份暂无工人出勤记录</div>';
-        } else {
-            tfoot.innerHTML = `
-                <tr>
-                    <td colspan="4" class="p-3 text-right">TOTAL (${month}) 总计：</td>
-                    <td class="p-3 font-mono text-slate-900">RM ${sumGross.toFixed(2)}</td>
-                    <td class="p-3 font-mono text-amber-700">- RM ${sumDeduct.toFixed(2)}</td>
-                    <td class="p-3 font-mono text-indigo-900 text-base">RM ${sumNet.toFixed(2)}</td>
-                </tr>
-            `;
         }
     }
 
-    // 4. 明细表格 (支持月份搜索、勾选批量修改、时薪自动重算)
     function renderDailyDetailTable() {
         const workerIdFilter = document.getElementById('detailWorkerFilter').value;
         const siteFilter = document.getElementById('detailSiteFilter').value;
@@ -1421,12 +1369,12 @@
             if (workerIdFilter && item.worker_id !== parseInt(workerIdFilter)) return false;
             if (siteFilter && item.site_name !== siteFilter) return false;
             if (searchDate && item.work_date !== searchDate) return false;
-            if (searchMonth && !(item.work_date || '').startsWith(searchMonth)) return false;
+            if (!searchDate && searchMonth && !(item.work_date || '').startsWith(searchMonth)) return false;
             return true;
         });
 
         if (filteredAtt.length === 0) {
-            attContainer.innerHTML = '<div class="p-4 text-center text-slate-400 text-xs bg-slate-50 rounded-xl">暂无符合条件的出勤流水记录</div>';
+            attContainer.innerHTML = '<div class="p-4 text-center text-slate-400 text-xs bg-slate-50 rounded-xl">暂无出勤流水记录</div>';
         } else {
             const groupedAtt = {};
             filteredAtt.forEach(att => {
@@ -1450,7 +1398,7 @@
                         <table class="w-full text-left border-collapse text-xs sm:text-sm bg-white rounded-lg">
                             <thead>
                                 <tr class="text-slate-500 font-semibold border-b bg-slate-50/50">
-                                    <th class="p-2.5 w-8"><input type="checkbox" onchange="toggleSelectAllGroup(this, '${ym}')" class="rounded"></th>
+                                    <th class="p-2 text-center w-8"><input type="checkbox" onchange="toggleSelectAllBatch(this)"></th>
                                     <th class="p-2.5">日期</th>
                                     <th class="p-2.5">工人姓名</th>
                                     <th class="p-2.5">施工工地</th>
@@ -1471,7 +1419,7 @@
                     const worker = workersList.find(w => w.id === att.worker_id) || {};
                     tbodyGroup.innerHTML += `
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2.5"><input type="checkbox" name="batchAttCb" value="${att.id}" class="rounded"></td>
+                            <td class="p-2 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
                             <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
                             <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-700">📍 ${escapeHtml(att.site_name)}</span></td>
@@ -1494,7 +1442,7 @@
         const filteredAdv = advancesList.filter(item => {
             if (workerIdFilter && item.worker_id !== parseInt(workerIdFilter)) return false;
             if (searchDate && item.advance_date !== searchDate) return false;
-            if (searchMonth && !(item.advance_date || '').startsWith(searchMonth)) return false;
+            if (!searchDate && searchMonth && !(item.advance_date || '').startsWith(searchMonth)) return false;
             return true;
         });
 
@@ -1557,49 +1505,46 @@
         }
     }
 
-    function toggleSelectAllGroup(masterCb, ym) {
-        const checkboxes = document.querySelectorAll(`#attTableGroup_${ym} input[name="batchAttCb"]`);
-        checkboxes.forEach(cb => cb.checked = masterCb.checked);
+    function toggleSelectAllBatch(masterCb) {
+        document.querySelectorAll('input[name="batchAttCb"]').forEach(cb => cb.checked = masterCb.checked);
     }
 
     function openBatchEditModal() {
         const checked = document.querySelectorAll('input[name="batchAttCb"]:checked');
-        if (checked.length === 0) return alert("请先在明细表中勾选需要批量修改的考勤记录！");
-        document.getElementById('batchEditAttendanceModal').classList.remove('hidden');
+        if (checked.length === 0) return alert("请先在考勤明细列表中勾选需要修改薪资的记录！");
+        document.getElementById('batchNewDailyRate').value = '';
+        document.getElementById('batchEditModal').classList.remove('hidden');
     }
 
     function closeBatchEditModal() {
-        document.getElementById('batchEditAttendanceModal').classList.add('hidden');
+        document.getElementById('batchEditModal').classList.add('hidden');
     }
 
-    async function submitBatchEditAttendance() {
-        const newHours = parseFloat(document.getElementById('batchAttHours').value);
-        if (isNaN(newHours) || newHours <= 0) return alert("请输入有效工时！");
+    async function submitBatchEdit() {
+        const newRate = parseFloat(document.getElementById('batchNewDailyRate').value);
+        if (isNaN(newRate) || newRate <= 0) return alert("请输入有效的日薪/时薪标准！");
 
         const checked = document.querySelectorAll('input[name="batchAttCb"]:checked');
-        if (checked.length === 0) return;
+        const ids = Array.from(checked).map(cb => parseInt(cb.value));
 
-        const promises = Array.from(checked).map(async cb => {
-            const id = parseInt(cb.value);
+        for (let id of ids) {
             const att = attendanceList.find(item => item.id === id);
-            if (!att) return;
-            const worker = workersList.find(w => w.id === att.worker_id) || { hourly_rate: 12.5 };
-            const hourlyRate = Number(worker.hourly_rate || 12.5);
-            const daily_wage = +(newHours * hourlyRate).toFixed(2);
+            if (!att) continue;
+            const hourlyRate = newRate / 8;
+            const daily_wage = +(Number(att.total_hours) * hourlyRate).toFixed(2);
 
-            return fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, {
+            await fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, {
                 method: "PATCH",
                 headers: reqHeaders,
-                body: JSON.stringify({ total_hours: newHours, daily_wage })
+                body: JSON.stringify({ daily_wage })
             });
-        });
+        }
 
-        await Promise.all(promises);
         closeBatchEditModal();
         await fetchAttendance();
         renderWorkerMonthlySummary();
         renderDailyDetailTable();
-        alert(`✅ 成功批量更新了 ${checked.length} 条考勤记录的工时，并已按最新时薪重算金额！`);
+        alert(`✅ 成功批量更新了 ${ids.length} 条出勤记录的工钱！`);
     }
 
     function openEditAttendanceModal(id) {
@@ -1641,7 +1586,7 @@
         await fetchAttendance();
         renderWorkerMonthlySummary();
         renderDailyDetailTable();
-        alert("✅ 考勤工时已更新，并已按最新时薪重新计算算薪！");
+        alert("✅ 考勤工时已修改更新！");
     }
 
     async function deleteAttendanceRecord(id) {
@@ -1660,7 +1605,6 @@
         renderDailyDetailTable();
     }
 
-    // 5. Subcon 分包管理
     async function fetchSubconData() {
         try {
             const [cRes, pRes, vRes] = await Promise.all([
@@ -1926,7 +1870,6 @@
         renderSubconDashboard();
     }
 
-    // 6. Marco 现金收支 (含支付方式与编辑修改功能)
     async function fetchPettyCash() {
         try {
             const res = await fetch(`${SUPABASE_URL}/marco_petty_cash?order=record_date.desc,record_time.desc`, { headers: reqHeaders });
@@ -1958,9 +1901,9 @@
         e.preventDefault();
         const trans_type = document.getElementById('pettyTransType').value;
         const shop_name = document.getElementById('pettyShopName').value.trim();
-        const payment_method = document.getElementById('pettyMethod').value;
         const record_date = document.getElementById('pettyDate').value;
         const record_time = document.getElementById('pettyTime').value;
+        const payment_method = document.getElementById('pettyPayMethod').value;
         const amount = parseFloat(document.getElementById('pettyAmount').value);
         const category = document.getElementById('pettyCategory').value;
         const receipt_no = document.getElementById('pettyReceiptNo').value.trim();
@@ -2073,56 +2016,20 @@
                         <td class="p-2.5 font-mono text-slate-500 text-xs">${item.record_date} ${item.record_time}</td>
                         <td class="p-2.5">${typeBadge}</td>
                         <td class="p-2.5 font-bold text-indigo-900">${escapeHtml(item.shop_name || '-')}</td>
-                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.payment_method || 'CASH')}</td>
-                        <td class="p-2.5 text-slate-700">${escapeHtml(item.category)}</td>
+                        <td class="p-2.5 font-semibold text-slate-700">[${escapeHtml(item.payment_method || 'CASH')}]</td>
+                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.category)}</td>
                         <td class="p-2.5 text-slate-900">${escapeHtml(item.description)}</td>
                         <td class="p-2.5 font-black font-mono ${isOut ? 'text-rose-600' : 'text-emerald-700'} text-sm">
                             ${isOut ? '-' : '+'} RM ${Number(item.amount).toFixed(2)}
                         </td>
                         <td class="p-2.5">${claimHtml}</td>
-                        <td class="p-2.5 text-right space-x-2">
-                            <button onclick="openEditPettyCashModal(${item.id})" class="text-indigo-600 hover:underline text-xs cursor-pointer">编辑</button>
+                        <td class="p-2.5 text-right">
                             <button onclick="deletePettyCash(${item.id})" class="text-rose-500 hover:underline text-xs cursor-pointer">删除</button>
                         </td>
                     </tr>
                 `;
             });
         });
-    }
-
-    function openEditPettyCashModal(id) {
-        const item = pettyCashList.find(p => p.id === id);
-        if(!item) return;
-        document.getElementById('editPettyId').value = item.id;
-        document.getElementById('editPettyShopName').value = item.shop_name || '';
-        document.getElementById('editPettyMethod').value = item.payment_method || 'CASH';
-        document.getElementById('editPettyAmount').value = item.amount;
-        document.getElementById('editPettyDescription').value = item.description;
-        document.getElementById('editPettyCashModal').classList.remove('hidden');
-    }
-
-    function closeEditPettyCashModal() {
-        document.getElementById('editPettyCashModal').classList.add('hidden');
-    }
-
-    async function submitEditPettyCash() {
-        const id = document.getElementById('editPettyId').value;
-        const shop_name = document.getElementById('editPettyShopName').value.trim();
-        const payment_method = document.getElementById('editPettyMethod').value;
-        const amount = parseFloat(document.getElementById('editPettyAmount').value);
-        const description = document.getElementById('editPettyDescription').value.trim();
-
-        if(!shop_name || isNaN(amount) || !description) return alert("请填写完整信息！");
-
-        await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
-            method: "PATCH",
-            headers: reqHeaders,
-            body: JSON.stringify({ shop_name, payment_method, amount, description })
-        });
-        closeEditPettyCashModal();
-        await fetchPettyCash();
-        renderPettyCashTable();
-        alert("✅ 现金流水记录已成功修改！");
     }
 
     async function deletePettyCash(id) {
@@ -2132,7 +2039,6 @@
         renderPettyCashTable();
     }
 
-    // 7. 工地综合搜索
     function populateSiteSearchDropdown() {
         const select = document.getElementById('searchSiteSelect');
         if(!select) return;
@@ -2221,6 +2127,7 @@
             renderPettyCashTable();
         }
 
+    
         closeClaimPvModal();
         alert(`✅ 报销登记成功！已绑定凭证编号: ${pv}`);
     }
