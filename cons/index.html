@@ -63,7 +63,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 1: 出勤打卡与借月结                                     -->
+    <!-- SECTION 1: 出勤打卡与借款月结                                   -->
     <!-- ============================================================== -->
     <div id="tabWorkers" class="space-y-4 sm:space-y-6">
         
@@ -162,12 +162,13 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">快捷点击借款数额 (RM)：</label>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="setAdvAmount(50)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 50</button>
-                        <button type="button" onclick="setAdvAmount(100)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 100</button>
-                        <button type="button" onclick="setAdvAmount(200)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 200</button>
-                        <button type="button" onclick="setAdvAmount(300)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 300</button>
-                        <button type="button" onclick="setAdvAmount(500)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border text-xs font-bold rounded-lg cursor-pointer">RM 500</button>
-                        <button type="button" onclick="setAdvAmount(1000)" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm cursor-pointer">RM 1000</button>
+                        <!-- RM 1000 已统一调整为与其他一致的样式 -->
+                        <button type="button" onclick="setAdvAmount(50)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 50</button>
+                        <button type="button" onclick="setAdvAmount(100)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 100</button>
+                        <button type="button" onclick="setAdvAmount(200)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 200</button>
+                        <button type="button" onclick="setAdvAmount(300)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 300</button>
+                        <button type="button" onclick="setAdvAmount(500)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 500</button>
+                        <button type="button" onclick="setAdvAmount(1000)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 1000</button>
                     </div>
                 </div>
 
@@ -190,7 +191,6 @@
             </form>
         </div>
 
-        <!-- 月度薪资结算总表 (含底部借支、应发、净额 TOTAL 总计) -->
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden space-y-3 p-4 sm:p-5">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
                 <div>
@@ -217,7 +217,6 @@
                         </tr>
                     </thead>
                     <tbody id="workerMonthlyBody" class="divide-y divide-slate-100"></tbody>
-                    <!-- 底部总计 Total 行 -->
                     <tfoot id="workerMonthlyFoot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300"></tfoot>
                 </table>
             </div>
@@ -228,7 +227,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 2: 全量打卡/借款明细表 (支持月份与日子搜索、批量操作)    -->
+    <!-- SECTION 2: 全量打卡/借款明细表                                   -->
     <!-- ============================================================== -->
     <div id="tabDailyDetail" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 space-y-4">
@@ -238,7 +237,6 @@
                     <p class="text-xs text-slate-500">支持按月份或具体日子搜索，可编辑、单条或批量修改考勤记录</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <!-- 新增月份搜索过滤 -->
                     <div class="flex items-center gap-1">
                         <label class="text-xs font-semibold text-slate-600">按月份:</label>
                         <input type="month" id="detailSearchMonth" onchange="renderDailyDetailTable()" class="px-2 py-1 border rounded-xl text-xs bg-white font-bold text-indigo-900">
@@ -275,7 +273,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 3: Subcon 分包与垫付管理 (默认完全隐藏，需密码解锁)      -->
+    <!-- SECTION 3: Subcon 分包与垫付管理 (默认隐藏，需密码解锁)          -->
     <!-- ============================================================== -->
     <div id="tabSubcon" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -387,7 +385,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 4: Marco 现金收支与 Claim 模块 (含付款方式与编辑功能)    -->
+    <!-- SECTION 4: Marco 现金收支与 Claim 模块 (默认隐藏，需密码解锁)    -->
     <!-- ============================================================== -->
     <div id="tabPettyCash" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -596,7 +594,6 @@
                 </table>
             </div>
 
-            <!-- 已隐藏员工列表 (支持解除隐藏恢复) -->
             <div class="pt-3 border-t">
                 <h3 class="text-xs font-bold text-slate-600 mb-2">已隐藏员工列表 (可随时解除隐藏恢复)：</h3>
                 <div id="archivedWorkersBody" class="space-y-2"></div>
@@ -727,7 +724,7 @@
     </div>
 </div>
 
-<!-- 弹窗 5: 编辑修改考勤记录工时与备注 (自动按当前最新时薪重新计算算薪) -->
+<!-- 弹窗 5: 编辑修改考勤记录工时与备注 -->
 <div id="editAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时与备注 (自动按最新时薪重算)</h3>
@@ -1621,7 +1618,6 @@
         document.getElementById('editAttendanceModal').classList.add('hidden');
     }
 
-    // 单条修改考勤（自动按该工人当前最新时薪重新计算金额）
     async function submitEditAttendance() {
         const id = document.getElementById('editAttId').value;
         const total_hours = parseFloat(document.getElementById('editAttHours').value);
@@ -1632,7 +1628,7 @@
         const att = attendanceList.find(item => item.id == id);
         const worker = workersList.find(w => w.id === att.worker_id) || { hourly_rate: 12.5 };
         const hourlyRate = Number(worker.hourly_rate || 12.5);
-        const daily_wage = +(total_hours * hourlyRate).toFixed(2); // 实时用最新时薪重算
+        const daily_wage = +(total_hours * hourlyRate).toFixed(2);
 
         await fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, {
             method: "PATCH",
