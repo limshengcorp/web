@@ -162,7 +162,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">快捷点击借款数额 (RM)：</label>
                     <div class="flex flex-wrap gap-2">
-                        <!-- RM 1000 已统一调整为与其他一致的样式 -->
+                        <!-- 统一取消了特殊黄色样式 -->
                         <button type="button" onclick="setAdvAmount(50)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 50</button>
                         <button type="button" onclick="setAdvAmount(100)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 100</button>
                         <button type="button" onclick="setAdvAmount(200)" class="px-3.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer">RM 200</button>
@@ -795,6 +795,7 @@
 </div>
 
 <script>
+    <!-- 接入你专属的 Supabase 真实连接参数 -->
     const SUPABASE_URL = "https://xiplmlalurpnrnzeaywp.supabase.co/rest/v1";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpcGxtbGFsdXJwbnJuemVheXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mjk2NjYsImV4cCI6MjEwNDAwNTY2Nn0.uIRTO0MAvQHGzQzdWwWZCufeMsnuU9LQTHUOI60lTXQ";
 
