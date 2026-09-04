@@ -11,18 +11,23 @@
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
             #printArea { 
-                position: absolute; 
+                position: fixed; 
                 left: 0; 
                 top: 0; 
-                width: 148mm; 
+                width: 100vw; 
+                height: 100vh;
                 margin: 0;
-                padding: 5mm;
+                padding: 4mm;
                 background: #fff;
+                box-sizing: border-box;
             }
             @page { 
                 size: A5 portrait; 
                 margin: 0; 
             }
+            table { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; page-break-after: avoid; }
+            td, th { padding: 2px 3px !important; font-size: 8.5px !important; }
         }
     </style>
 </head>
@@ -406,7 +411,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 4: Marco 现金收支与 Claim 模块 (含便捷 Worker Advance 快捷按钮) -->
+    <!-- SECTION 4: Marco 现金收支与 Claim 模块                           -->
     <!-- ============================================================== -->
     <div id="tabPettyCash" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -439,8 +444,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">收款人：公司 / 店铺 / 名字</label>
-                        <input type="text" id="pettyShopName" required placeholder="如: 99 Speedmart 或 某个工人名字" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium text-indigo-900">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">收款人：公司/店铺/名字</label>
+                        <input type="text" id="pettyShopName" required placeholder="如: 99 Speedmart / 某五金店" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium text-indigo-900">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">发生日期</label>
@@ -450,14 +455,6 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1">金额 (RM)</label>
                         <input type="number" step="0.01" id="pettyAmount" required placeholder="0.00" class="w-full px-3 py-2 border rounded-xl text-sm font-black text-indigo-700">
                     </div>
-                </div>
-
-                <!-- 方便点击的 Worker Advance 快捷按钮 -->
-                <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200 flex items-center justify-between">
-                    <span class="text-xs font-bold text-amber-900">💡 快捷便利操作：若为工人预支或代扣，可直接点击：</span>
-                    <button type="button" onclick="setPettyWorkerAdvance()" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg cursor-pointer shadow-sm">
-                        + 设为 Worker Advance (工人借钱/代扣)
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
@@ -479,8 +476,8 @@
                         <select id="pettyCategory" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium">
                             <option value="买料/工具">买料 / 现场五金工具</option>
                             <option value="维修/安装">机械维修 / 安装费</option>
+                            <option value="Worker advance">Worker advance (工人预支借款)</option>
                             <option value="工人杂支">现场杂支 / 伙食水钱</option>
-                            <option value="Worker Advance">Worker Advance (工人借钱/代扣)</option>
                             <option value="卖废铁现金">卖工地废铁/旧料 (收入)</option>
                             <option value="其他">其他款项</option>
                         </select>
@@ -506,7 +503,7 @@
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-3">
                 <div>
-                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">📑 Marco 现金流水账本 (支持编辑与查账)</h3>
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">📑 Marco 现金流水账本 (按年月收缩分组与查账)</h3>
                     <p class="text-xs text-slate-500">公司出钱报销后，书记点击“确认 Claimed”并填入对应 PV 编号</p>
                 </div>
             </div>
@@ -516,7 +513,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- SECTION 5: 工地工钱总和搜索功能                                  -->
+    <!-- SECTION 5: 工地工钱总和搜索功能 (增加年月筛选)                     -->
     <!-- ============================================================== -->
     <div id="tabSiteSearch" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
@@ -527,7 +524,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                 <select id="searchSiteSelect" class="w-full px-3 py-2.5 border rounded-xl text-sm bg-white font-bold text-indigo-900">
-                    <option value="">-- 请选择工地 --</option>
+                    <option value="">-- 请选择或切换工地 --</option>
                 </select>
                 <input type="month" id="searchSiteMonth" class="w-full px-3 py-2.5 border rounded-xl text-sm bg-white font-bold text-indigo-900">
                 <button onclick="executeSiteSearch()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow cursor-pointer">
@@ -667,41 +664,41 @@
 
 </div>
 
-<!-- 唯一的 A5 单页打印模板容器（绝对不产生多余空白页） -->
+<!-- 隐藏的 A5 单页打印模板（含工时、薪水、借钱及 Net Total 算法显示） -->
 <div id="printArea" class="hidden">
-    <div style="font-family:sans-serif; color:#000; font-size:7px; line-height:1.05;">
-        <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:2px; margin-bottom:2px;">
-            <h2 style="font-size:10px; font-weight:bold; margin:0;">LIM SHENG CONSTRUCTION</h2>
-            <p style="font-size:7.5px; margin:1px 0;">工人考勤与借支对账明细单</p>
-            <div id="printMetaInfo" style="font-size:7px; margin-top:1px;"></div>
+    <div style="font-family:sans-serif; color:#000; font-size:8px; line-height:1.15; max-height:190mm; overflow:hidden;">
+        <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:3px; margin-bottom:4px;">
+            <h2 style="font-size:12px; font-weight:bold; margin:0;">LIM SHENG CONSTRUCTION</h2>
+            <p style="font-size:9px; margin:1px 0;">工人考勤与借支对账明细单</p>
+            <div id="printMetaInfo" style="font-size:8px; margin-top:2px;"></div>
         </div>
 
-        <div style="margin-bottom:2px;">
-            <h3 style="font-size:8px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:1px;">一、 出勤打卡明细</h3>
-            <table style="width:100%; border-collapse:collapse; font-size:7px;">
+        <div style="margin-bottom:4px;">
+            <h3 style="font-size:9px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:2px;">一、 出勤打卡明细</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:8px;">
                 <thead>
                     <tr style="background:#eee; border-bottom:1px solid #000;">
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">日期</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">工人姓名</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">工地</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:center;">工时</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:right;">算薪(RM)</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">日期</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">工人姓名</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">工地</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:center;">工时</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:right;">算薪(RM)</th>
                     </tr>
                 </thead>
                 <tbody id="printAttTbody"></tbody>
             </table>
         </div>
 
-        <div style="margin-bottom:2px;">
-            <h3 style="font-size:8px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:1px;">二、 借支/代扣明细</h3>
-            <table style="width:100%; border-collapse:collapse; font-size:7px;">
+        <div style="margin-bottom:4px;">
+            <h3 style="font-size:9px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:2px;">二、 借支/代扣明细</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:8px;">
                 <thead>
                     <tr style="background:#eee; border-bottom:1px solid #000;">
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">日期</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">工人姓名</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">性质</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:right;">金额(RM)</th>
-                        <th style="border:1px solid #bbb; padding:1px; text-align:left;">备注</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">日期</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">工人姓名</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">性质</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:right;">金额(RM)</th>
+                        <th style="border:1px solid #bbb; padding:1px 2px; text-align:left;">备注</th>
                     </tr>
                 </thead>
                 <tbody id="printAdvTbody"></tbody>
@@ -709,21 +706,21 @@
         </div>
 
         <!-- 汇总与算法展示区 -->
-        <div style="border:1px solid #000; padding:2px 3px; margin-top:2px; background:#f9f9f9; font-size:7.5px;">
-            <div style="font-weight:bold; margin-bottom:1px; border-bottom:1px dashed #ccc;">📊 结算算法与总计 (Summary & Net Total)</div>
+        <div style="border:1px solid #000; padding:4px; margin-top:4px; background:#f9f9f9; font-size:8.5px;">
+            <div style="font-weight:bold; margin-bottom:2px; border-bottom:1px dashed #ccc; padding-bottom:1px;">📊 结算算法与总计 (Summary & Net Total)</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:1px;">
-                <span>总工时: <strong id="printSumHours">0.0</strong> h</span>
-                <span>薪水总额 (Gross): <strong id="printSumGross">RM 0.00</strong></span>
+                <span>总工时 (Total Hours): <strong id="printSumHours">0.0</strong> h</span>
+                <span>薪水总额 (Gross Salary): <strong id="printSumGross">RM 0.00</strong></span>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:1px;">
-                <span>借钱/代扣总额 (Advance): <strong id="printSumAdv" style="color:#b45309;">RM 0.00</strong></span>
-                <span><strong>最终实发净额 (Net Total):</strong> <strong id="printNetTotal" style="color:#047857; font-size:8.5px;">RM 0.00</strong></span>
+            <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                <span>借钱/代扣总额 (Total Advance): <strong id="printSumAdv" style="color:#b45309;">RM 0.00</strong></span>
+                <span><strong>最终实发净额 (Net Total):</strong> <strong id="printNetTotal" style="color:#047857; font-size:10px;">RM 0.00</strong></span>
             </div>
-            <div style="font-size:6.5px; color:#555; font-style:italic;">* 公式：薪水总额 (Gross) - 借钱总额 (Advance) = 实发净额 (Net Total)</div>
+            <div style="font-size:7.5px; color:#555; font-style:italic;">* 计算公式：薪水总额 (Gross) - 借钱总额 (Advance) = 实发净额 (Net Total)</div>
         </div>
 
-        <div style="margin-top:3px; display:flex; justify-content:space-between; font-size:7px;">
-            <div>主管签字: _______________</div>
+        <div style="margin-top:6px; display:flex; justify-content:space-between; font-size:8px;">
+            <div>主管/审核签字: _______________</div>
             <div>打印时间: <span id="printTimeSpan"></span></div>
         </div>
     </div>
@@ -831,7 +828,7 @@
     </div>
 </div>
 
-<!-- 弹窗 5: 编辑修改考勤记录 -->
+<!-- 弹窗 5: 编辑修改考勤记录（支持修改工地、工时与备注） -->
 <div id="editAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时、工地与备注</h3>
@@ -856,65 +853,6 @@
     </div>
 </div>
 
-<!-- 弹窗 7: 编辑 Marco 现金流流水记录（已修复传递 ID 进行 PATCH 更新） -->
-<div id="editPettyCashModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改现金流水记录</h3>
-        <input type="hidden" id="editPettyId">
-        <div class="grid grid-cols-2 gap-2">
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">交易类型</label>
-                <select id="editPettyTransType" class="w-full px-2.5 py-2 border rounded-xl text-xs font-bold bg-white">
-                    <option value="OUT">🔴 OUT - 垫付</option>
-                    <option value="IN">🟢 IN - 收现</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">发生日期</label>
-                <input type="date" id="editPettyDate" class="w-full px-2.5 py-2 border rounded-xl text-xs bg-white">
-            </div>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">收款人：公司 / 店铺 / 名字</label>
-            <input type="text" id="editPettyShopName" class="w-full px-2.5 py-2 border rounded-xl text-xs bg-white font-medium">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">支付方式</label>
-                <select id="editPettyMethod" class="w-full px-2.5 py-2 border rounded-xl text-xs bg-white font-semibold">
-                    <option value="CASH">CASH</option>
-                    <option value="TNG">TNG</option>
-                    <option value="HLB">HLB</option>
-                    <option value="HSBC">HSBC</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">金额 (RM)</label>
-                <input type="number" step="0.01" id="editPettyAmount" class="w-full px-2.5 py-2 border rounded-xl text-xs font-black text-indigo-700">
-            </div>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">分类</label>
-            <select id="editPettyCategory" class="w-full px-2.5 py-2 border rounded-xl text-xs bg-white">
-                <option value="买料/工具">买料/工具</option>
-                <option value="维修/安装">维修/安装</option>
-                <option value="工人杂支">工人杂支</option>
-                <option value="Worker Advance">Worker Advance</option>
-                <option value="卖废铁现金">卖废铁现金</option>
-                <option value="其他">其他</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">具体内容原因</label>
-            <input type="text" id="editPettyDesc" class="w-full px-2.5 py-2 border rounded-xl text-xs bg-white">
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t">
-            <button type="button" onclick="closeEditPettyModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitEditPettyCash()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
-        </div>
-    </div>
-</div>
-
 <!-- 弹窗 6: 批量勾选一键修改日薪/时薪 -->
 <div id="batchEditModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-3">
@@ -927,6 +865,63 @@
         <div class="flex justify-end gap-2 pt-2 border-t">
             <button type="button" onclick="closeBatchEditModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
             <button type="button" onclick="submitBatchEdit()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">确认批量更新</button>
+        </div>
+    </div>
+</div>
+
+<!-- 弹窗 7: 编辑 Marco 现金流水记录 -->
+<div id="editPettyCashModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-5 space-y-3">
+        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 编辑修改现金流水记录</h3>
+        <input type="hidden" id="editPettyId">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">交易类型</label>
+                <select id="editPettyTransType" class="w-full px-3 py-2 border rounded-xl text-sm font-bold bg-white">
+                    <option value="OUT">🔴 OUT - 垫付花钱</option>
+                    <option value="IN">🟢 IN - 现场收现</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">收款人：公司/店铺/名字</label>
+                <input type="text" id="editPettyShopName" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium text-indigo-900">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">发生日期</label>
+                <input type="date" id="editPettyDate" class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">金额 (RM)</label>
+                <input type="number" step="0.01" id="editPettyAmount" class="w-full px-3 py-2 border rounded-xl text-sm font-black text-indigo-700">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">支付方式</label>
+                <select id="editPettyPayMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold">
+                    <option value="CASH">💵 现金 (CASH)</option>
+                    <option value="TNG">📱 Touch 'n Go</option>
+                    <option value="HLB">🏦 Hong Leong Bank</option>
+                    <option value="HSBC">🏦 HSBC Bank</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">分类</label>
+                <select id="editPettyCategory" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-medium">
+                    <option value="买料/工具">买料 / 现场五金工具</option>
+                    <option value="维修/安装">机械维修 / 安装费</option>
+                    <option value="Worker advance">Worker advance (工人预支借款)</option>
+                    <option value="工人杂支">现场杂支 / 伙食水钱</option>
+                    <option value="卖废铁现金">卖工地废铁/旧料 (收入)</option>
+                    <option value="其他">其他款项</option>
+                </select>
+            </div>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">具体内容原因</label>
+            <input type="text" id="editPettyDescription" class="w-full px-3 py-2 border rounded-xl text-sm">
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+            <button type="button" onclick="closeEditPettyCashModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
+            <button type="button" onclick="submitEditPettyCash()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
         </div>
     </div>
 </div>
@@ -1069,12 +1064,6 @@
 
     function setSubconNoteAdvance() {
         document.getElementById('payNote').value = "Advance";
-    }
-
-    function setPettyWorkerAdvance() {
-        document.getElementById('pettyCategory').value = "Worker Advance";
-        document.getElementById('pettyDescription').value = "工人预支借钱/代扣";
-        document.getElementById('pettyShopName').focus();
     }
 
     function getWorkerTypeBadge(type) {
@@ -1700,7 +1689,7 @@
         }
     }
 
-    // A5 打印函数（精准单页，绝对不产生多页及重复）
+    // 触发紧凑单页 A5 导出打印（带 Total 与算法公式计算）
     function printFilteredDetails() {
         const workerIdFilter = document.getElementById('detailWorkerFilter').value;
         const searchDate = document.getElementById('detailSearchDate').value;
@@ -1735,7 +1724,7 @@
         const attTbody = document.getElementById('printAttTbody');
         attTbody.innerHTML = '';
         if (filteredAtt.length === 0) {
-            attTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1px; color:#666;">无匹配出勤记录</td></tr>`;
+            attTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3px; color:#666;">无匹配出勤记录</td></tr>`;
         } else {
             filteredAtt.forEach(att => {
                 const w = workersList.find(x => x.id === att.worker_id) || {};
@@ -1743,11 +1732,11 @@
                 sumGross += Number(att.daily_wage || 0);
                 attTbody.innerHTML += `
                     <tr>
-                        <td style="border:1px solid #bbb; padding:1px;">${att.work_date}</td>
-                        <td style="border:1px solid #bbb; padding:1px;">${escapeHtml(w.name || '-')}</td>
-                        <td style="border:1px solid #bbb; padding:1px;">${escapeHtml(att.site_name)}</td>
-                        <td style="border:1px solid #bbb; padding:1px; text-align:center;">${Number(att.total_hours).toFixed(1)}h</td>
-                        <td style="border:1px solid #bbb; padding:1px; text-align:right;">RM ${Number(att.daily_wage).toFixed(2)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${att.work_date}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(att.site_name)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:center;">${Number(att.total_hours).toFixed(1)}h</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:right;">RM ${Number(att.daily_wage).toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1757,18 +1746,18 @@
         const advTbody = document.getElementById('printAdvTbody');
         advTbody.innerHTML = '';
         if (filteredAdv.length === 0) {
-            advTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1px; color:#666;">无匹配借款/代扣记录</td></tr>`;
+            advTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3px; color:#666;">无匹配借款/代扣记录</td></tr>`;
         } else {
             filteredAdv.forEach(adv => {
                 const w = workersList.find(x => x.id === adv.worker_id) || {};
                 sumAdv += Number(adv.amount || 0);
                 advTbody.innerHTML += `
                     <tr>
-                        <td style="border:1px solid #bbb; padding:1px;">${adv.advance_date}</td>
-                        <td style="border:1px solid #bbb; padding:1px;">${escapeHtml(w.name || '-')}</td>
-                        <td style="border:1px solid #bbb; padding:1px;">${escapeHtml(adv.advance_type)}</td>
-                        <td style="border:1px solid #bbb; padding:1px; text-align:right;">RM ${Number(adv.amount).toFixed(2)}</td>
-                        <td style="border:1px solid #bbb; padding:1px;">${escapeHtml(adv.note || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${adv.advance_date}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(adv.advance_type)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:right;">RM ${Number(adv.amount).toFixed(2)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(adv.note || '-')}</td>
                     </tr>
                 `;
             });
@@ -1783,8 +1772,9 @@
         const now = new Date();
         document.getElementById('printTimeSpan').innerText = now.toISOString().replace('T', ' ').slice(0, 16);
 
-        // 调用打印
+        document.getElementById('printArea').classList.remove('hidden');
         window.print();
+        document.getElementById('printArea').classList.add('hidden');
     }
 
     function toggleSelectAllBatch(masterCb) {
@@ -2177,8 +2167,8 @@
             cat.innerHTML = `
                 <option value="买料/工具">买料 / 现场五金工具</option>
                 <option value="维修/安装">机械维修 / 安装费</option>
+                <option value="Worker advance">Worker advance (工人预支借款)</option>
                 <option value="工人杂支">现场杂支 / 伙食水钱</option>
-                <option value="Worker Advance">Worker Advance (工人借钱/代扣)</option>
                 <option value="其他">其他垫付</option>
             `;
         }
@@ -2269,7 +2259,7 @@
                             <tr class="bg-slate-50 text-slate-500 font-semibold border-b">
                                 <th class="p-2.5">日期时间</th>
                                 <th class="p-2.5">类型</th>
-                                <th class="p-2.5">收款人 (公司/店铺/名字)</th>
+                                <th class="p-2.5">收款人：公司/店铺/名字</th>
                                 <th class="p-2.5">支付方式</th>
                                 <th class="p-2.5">分类</th>
                                 <th class="p-2.5">内容原因</th>
@@ -2311,7 +2301,7 @@
                         </td>
                         <td class="p-2.5">${claimHtml}</td>
                         <td class="p-2.5 text-right space-x-2">
-                            <button onclick="openEditPettyModal(${item.id})" class="text-indigo-600 hover:underline text-xs cursor-pointer">编辑</button>
+                            <button onclick="openEditPettyCashModal(${item.id})" class="text-indigo-600 hover:underline text-xs cursor-pointer">编辑</button>
                             <button onclick="deletePettyCash(${item.id})" class="text-rose-500 hover:underline text-xs cursor-pointer">删除</button>
                         </td>
                     </tr>
@@ -2320,49 +2310,43 @@
         });
     }
 
-    function openEditPettyModal(id) {
-        const item = pettyCashList.find(x => x.id === id);
-        if (!item) return;
+    function openEditPettyCashModal(id) {
+        const item = pettyCashList.find(p => p.id === id);
+        if(!item) return;
         document.getElementById('editPettyId').value = item.id;
         document.getElementById('editPettyTransType').value = item.trans_type;
-        document.getElementById('editPettyDate').value = item.record_date;
         document.getElementById('editPettyShopName').value = item.shop_name || '';
-        document.getElementById('editPettyMethod').value = item.payment_method || 'CASH';
-        document.getElementById('editPettyCategory').value = item.category || '买料/工具';
-        document.getElementById('editPettyDesc').value = item.description || '';
+        document.getElementById('editPettyDate').value = item.record_date || '';
         document.getElementById('editPettyAmount').value = item.amount;
+        document.getElementById('editPettyPayMethod').value = item.payment_method || 'CASH';
+        document.getElementById('editPettyCategory').value = item.category || '买料/工具';
+        document.getElementById('editPettyDescription').value = item.description || '';
         document.getElementById('editPettyCashModal').classList.remove('hidden');
     }
 
-    function closeEditPettyModal() {
+    function closeEditPettyCashModal() {
         document.getElementById('editPettyCashModal').classList.add('hidden');
     }
 
-    // 修复后的现金流水编辑保存逻辑（确保带上 id=eq.xxx 参数）
     async function submitEditPettyCash() {
         const id = document.getElementById('editPettyId').value;
         const trans_type = document.getElementById('editPettyTransType').value;
-        const record_date = document.getElementById('editPettyDate').value;
         const shop_name = document.getElementById('editPettyShopName').value.trim();
-        const payment_method = document.getElementById('editPettyMethod').value;
-        const category = document.getElementById('editPettyCategory').value;
-        const description = document.getElementById('editPettyDesc').value.trim();
+        const record_date = document.getElementById('editPettyDate').value;
         const amount = parseFloat(document.getElementById('editPettyAmount').value);
+        const payment_method = document.getElementById('editPettyPayMethod').value;
+        const category = document.getElementById('editPettyCategory').value;
+        const description = document.getElementById('editPettyDescription').value.trim();
 
-        if (!shop_name || isNaN(amount) || amount <= 0) return alert("请填写完整信息！");
+        if (!shop_name || isNaN(amount) || amount <= 0 || !description) return alert("请完整填写修改信息！");
 
-        const res = await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
+        await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
             method: "PATCH",
             headers: reqHeaders,
-            body: JSON.stringify({ trans_type, record_date, shop_name, payment_method, category, description, amount })
+            body: JSON.stringify({ trans_type, shop_name, record_date, amount, payment_method, category, description })
         });
 
-        if (!res.ok) {
-            alert("❌ 修改失败，请检查网络或 Supabase 策略！");
-            return;
-        }
-
-        closeEditPettyModal();
+        closeEditPettyCashModal();
         await fetchPettyCash();
         renderPettyCashTable();
         alert("✅ 现金流水记录已成功修改！");
@@ -2384,6 +2368,7 @@
         });
     }
 
+    // 工地综合搜索支持指定年月
     function executeSiteSearch() {
         const siteName = document.getElementById('searchSiteSelect').value;
         const searchMonth = document.getElementById('searchSiteMonth').value;
