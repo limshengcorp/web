@@ -10,8 +10,21 @@
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
-            @page { size: A5; margin: 10mm; }
+            #printArea { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                margin: 0;
+                padding: 0;
+            }
+            @page { 
+                size: A5 portrait; 
+                margin: 5mm; 
+            }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            td, th { padding: 2px 4px !important; font-size: 9px !important; }
         }
     </style>
 </head>
@@ -258,9 +271,9 @@
                     <select id="detailSiteFilter" onchange="renderDailyDetailTable()" class="px-3 py-1.5 border rounded-xl text-xs bg-white">
                         <option value="">全部工地</option>
                     </select>
-                    <!-- 新增 A5 打印按钮 -->
+                    <!-- A5 打印按钮 -->
                     <button onclick="printFilteredDetails()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow cursor-pointer flex items-center gap-1">
-                        5 导出打印 (A5)
+                        🖨️ 导出打印 (A5)
                     </button>
                 </div>
             </div>
@@ -647,48 +660,48 @@
 
 </div>
 
-<!-- 隐藏的 A5 打印专属排版区域 -->
+<!-- 隐藏的 A5 打印专属排版区域：经过压缩优化，确保刚好集中在单页 A5 -->
 <div id="printArea" class="hidden">
-    <div style="font-family:sans-serif; padding:10px; color:#000;">
-        <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:8px; margin-bottom:10px;">
-            <h2 style="font-size:16px; font-weight:bold; margin:0;">LIM SHENG CONSTRUCTION</h2>
-            <p style="font-size:11px; margin:2px 0;">工人考勤与借支对账明细单</p>
-            <div id="printMetaInfo" style="font-size:10px; margin-top:4px;"></div>
+    <div style="font-family:sans-serif; padding:2px; color:#000; font-size:9px; line-height:1.2;">
+        <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:4px; margin-bottom:6px;">
+            <h2 style="font-size:13px; font-weight:bold; margin:0;">LIM SHENG CONSTRUCTION</h2>
+            <p style="font-size:10px; margin:1px 0;">工人考勤与借支对账明细单</p>
+            <div id="printMetaInfo" style="font-size:9px; margin-top:2px;"></div>
         </div>
 
-        <div style="margin-bottom:12px;">
-            <h3 style="font-size:12px; font-weight:bold; border-bottom:1px solid #666; padding-bottom:2px; margin-bottom:4px;">一、 出勤打卡明细</h3>
-            <table style="width:100%; border-collapse:collapse; font-size:10px;">
+        <div style="margin-bottom:6px;">
+            <h3 style="font-size:10px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:2px;">一、 出勤打卡明细</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:9px;">
                 <thead>
                     <tr style="background:#eee; border-bottom:1px solid #000;">
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">日期</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">工人姓名</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">工地</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:center;">工时</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:right;">算薪(RM)</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">日期</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">工人姓名</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">工地</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:center;">工时</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:right;">算薪(RM)</th>
                     </tr>
                 </thead>
                 <tbody id="printAttTbody"></tbody>
             </table>
         </div>
 
-        <div>
-            <h3 style="font-size:12px; font-weight:bold; border-bottom:1px solid #666; padding-bottom:2px; margin-bottom:4px;">二、 借支/代扣明细</h3>
-            <table style="width:100%; border-collapse:collapse; font-size:10px;">
+        <div style="margin-bottom:6px;">
+            <h3 style="font-size:10px; font-weight:bold; border-bottom:1px solid #444; padding-bottom:1px; margin-bottom:2px;">二、 借支/代扣明细</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:9px;">
                 <thead>
                     <tr style="background:#eee; border-bottom:1px solid #000;">
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">日期</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">工人姓名</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">性质</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:right;">金额(RM)</th>
-                        <th style="border:1px solid #ccc; padding:3px; text-align:left;">备注</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">日期</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">工人姓名</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">性质</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:right;">金额(RM)</th>
+                        <th style="border:1px solid #aaa; padding:2px; text-align:left;">备注</th>
                     </tr>
                 </thead>
                 <tbody id="printAdvTbody"></tbody>
             </table>
         </div>
 
-        <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:11px;">
+        <div style="margin-top:10px; display:flex; justify-content:space-between; font-size:9px;">
             <div>主管/审核签字: _______________</div>
             <div>打印时间: <span id="printTimeSpan"></span></div>
         </div>
@@ -1593,7 +1606,7 @@
         }
     }
 
-    // 触发 A5 导出打印
+    // 触发紧凑型 A5 导出打印
     function printFilteredDetails() {
         const workerIdFilter = document.getElementById('detailWorkerFilter').value;
         const searchDate = document.getElementById('detailSearchDate').value;
@@ -1605,7 +1618,7 @@
         const monthStr = searchDate ? searchDate : (searchMonth ? searchMonth : '全部时间段');
 
         document.getElementById('printMetaInfo').innerHTML = `
-            <div><strong>筛选员工:</strong> ${escapeHtml(workerNameStr)} &nbsp;|&nbsp; <strong>时间范围:</strong> ${escapeHtml(monthStr)} &nbsp;|&nbsp; <strong>工地筛选:</strong> ${escapeHtml(siteFilter || '全部')}</div>
+            <div><strong>筛选员工:</strong> ${escapeHtml(workerNameStr)} &nbsp;|&nbsp; <strong>时间范围:</strong> ${escapeHtml(monthStr)} &nbsp;|&nbsp; <strong>工地:</strong> ${escapeHtml(siteFilter || '全部')}</div>
         `;
 
         const filteredAtt = attendanceList.filter(item => {
@@ -1626,17 +1639,17 @@
         const attTbody = document.getElementById('printAttTbody');
         attTbody.innerHTML = '';
         if (filteredAtt.length === 0) {
-            attTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:6px; color:#666;">无匹配出勤记录</td></tr>`;
+            attTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:4px; color:#666;">无匹配出勤记录</td></tr>`;
         } else {
             filteredAtt.forEach(att => {
                 const w = workersList.find(x => x.id === att.worker_id) || {};
                 attTbody.innerHTML += `
                     <tr>
-                        <td style="border:1px solid #ccc; padding:3px;">${att.work_date}</td>
-                        <td style="border:1px solid #ccc; padding:3px;">${escapeHtml(w.name || '-')}</td>
-                        <td style="border:1px solid #ccc; padding:3px;">${escapeHtml(att.site_name)}</td>
-                        <td style="border:1px solid #ccc; padding:3px; text-align:center;">${Number(att.total_hours).toFixed(1)}h</td>
-                        <td style="border:1px solid #ccc; padding:3px; text-align:right;">RM ${Number(att.daily_wage).toFixed(2)}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${att.work_date}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${escapeHtml(att.site_name)}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px; text-align:center;">${Number(att.total_hours).toFixed(1)}h</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px; text-align:right;">RM ${Number(att.daily_wage).toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1645,17 +1658,17 @@
         const advTbody = document.getElementById('printAdvTbody');
         advTbody.innerHTML = '';
         if (filteredAdv.length === 0) {
-            advTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:6px; color:#666;">无匹配借款/代扣记录</td></tr>`;
+            advTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:4px; color:#666;">无匹配借款/代扣记录</td></tr>`;
         } else {
             filteredAdv.forEach(adv => {
                 const w = workersList.find(x => x.id === adv.worker_id) || {};
                 advTbody.innerHTML += `
                     <tr>
-                        <td style="border:1px solid #ccc; padding:3px;">${adv.advance_date}</td>
-                        <td style="border:1px solid #ccc; padding:3px;">${escapeHtml(w.name || '-')}</td>
-                        <td style="border:1px solid #ccc; padding:3px;">${escapeHtml(adv.advance_type)}</td>
-                        <td style="border:1px solid #ccc; padding:3px; text-align:right;">RM ${Number(adv.amount).toFixed(2)}</td>
-                        <td style="border:1px solid #ccc; padding:3px;">${escapeHtml(adv.note || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${adv.advance_date}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${escapeHtml(adv.advance_type)}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px; text-align:right;">RM ${Number(adv.amount).toFixed(2)}</td>
+                        <td style="border:1px solid #bbb; padding:2px 4px;">${escapeHtml(adv.note || '-')}</td>
                     </tr>
                 `;
             });
@@ -1664,7 +1677,6 @@
         const now = new Date();
         document.getElementById('printTimeSpan').innerText = now.toISOString().replace('T', ' ').slice(0, 16);
 
-        // 显示打印区域并调用打印
         document.getElementById('printArea').classList.remove('hidden');
         window.print();
         document.getElementById('printArea').classList.add('hidden');
