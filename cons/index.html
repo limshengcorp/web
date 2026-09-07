@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIM SHENG CONSTRUCTION - 施工协同与劳务核算系统</title>
+    <title>Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -34,35 +34,29 @@
 <body class="bg-slate-100 text-slate-800 p-2 sm:p-5 md:p-8">
 
 <!-- ============================================================== -->
-<!-- 🔐 全局安全访问拦截门锁 (默认死封，未授权不拉取任何数据)         -->
+<!-- 极简登录层 (去除所有公司名称与标语，只留纯粹 ID/Password)      -->
 <!-- ============================================================== -->
-<div id="authGateOverlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[999999] flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 space-y-5 border border-slate-200 text-center">
-        <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
-            🔒
+<div id="minimalAuthOverlay" class="fixed inset-0 bg-[#0f172a] z-[999999] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6 space-y-4 text-left">
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">ID:</label>
+            <input type="text" id="authUserId" autocomplete="off" autofocus
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-slate-800 transition"
+                   onkeydown="if(event.key==='Enter') document.getElementById('authUserPass').focus()">
         </div>
         <div>
-            <h2 class="text-xl font-black text-slate-900 tracking-tight">LIM SHENG CONSTRUCTION</h2>
-            <p class="text-xs text-slate-500 mt-1">施工协同与劳务核算系统 · 内部安全受控访问</p>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Password:</label>
+            <input type="password" id="authUserPass" 
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-slate-800 transition"
+                   onkeydown="if(event.key==='Enter') executeMinimalLogin()">
         </div>
-        <div class="space-y-3 text-left">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">系统操作访问口令</label>
-                <input type="password" id="sysGatePassInput" placeholder="请输入访问密码..." 
-                       class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none transition"
-                       onkeydown="if(event.key==='Enter') checkSystemAccessPass()">
-            </div>
-            <div id="gateErrMsg" class="text-xs text-rose-600 font-bold hidden flex items-center gap-1">
-                ⚠️ 口令错误，无权访问数据库！
-            </div>
-            <button type="button" onclick="checkSystemAccessPass()" 
-                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold rounded-xl text-sm shadow-md transition cursor-pointer">
-                🔓 解锁并进入系统
-            </button>
+        <div id="authErrMsg" class="text-xs text-rose-600 font-medium hidden">
+            密码错误，请重新输入
         </div>
-        <div class="text-[11px] text-slate-400">
-            非授权人员请立即离开，系统操作日志与数据受安全审计保护
-        </div>
+        <button type="button" onclick="executeMinimalLogin()" 
+                class="w-full py-2.5 bg-slate-900 hover:bg-black text-white text-sm font-semibold rounded-lg shadow cursor-pointer transition">
+            登录
+        </button>
     </div>
 </div>
 
@@ -78,14 +72,15 @@
                 <p class="text-xs text-slate-500 mt-0.5">工人出勤明细核算 · Subcon 分包垫付流水 · Marco 备用金收支报销</p>
             </div>
             <div class="flex items-center gap-2">
+                <span id="currentUserBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-lg"></span>
                 <button type="button" onclick="refreshAll()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer">
                     🔄 刷新同步
                 </button>
                 <button type="button" onclick="toggleManagementMode()" id="mgmtUnlockBtn" class="px-3.5 py-2 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer">
                     🔒 管理模式 (未解锁)
                 </button>
-                <button type="button" onclick="lockScreenImmediately()" title="离开时点击锁定" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer">
-                    🛑 锁定
+                <button type="button" onclick="logoutSystem()" class="px-3 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer">
+                    退出
                 </button>
             </div>
         </div>
@@ -119,11 +114,8 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 1: 出勤打卡与借款月结                                   -->
-    <!-- ============================================================== -->
+    <!-- SECTION 1: 出勤打卡与借款月结 -->
     <div id="tabWorkers" class="space-y-4 sm:space-y-6">
-        
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
                 <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-1.5">
@@ -258,7 +250,6 @@
                 </div>
             </div>
 
-            <!-- 月度总计统计 -->
             <div class="grid grid-cols-3 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-center text-xs">
                 <div><div class="text-slate-400">借钱与代扣总额</div><div class="font-bold text-amber-700 text-sm" id="monthlyTotalDeduction">RM 0.00</div></div>
                 <div><div class="text-slate-400">应发总额 (Gross)</div><div class="font-bold text-slate-800 text-sm" id="monthlyTotalGross">RM 0.00</div></div>
@@ -284,12 +275,9 @@
 
             <div id="workerMonthlyCards" class="block md:hidden space-y-2"></div>
         </div>
-
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 2: 全量打卡/借款明细表                                   -->
-    <!-- ============================================================== -->
+    <!-- SECTION 2: 全量打卡/借款明细表 -->
     <div id="tabDailyDetail" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
@@ -309,7 +297,6 @@
                     <select id="detailSiteFilter" onchange="renderDailyDetailTable()" class="px-3 py-1.5 border rounded-xl text-xs bg-white">
                         <option value="">全部工地</option>
                     </select>
-                    <!-- A5 打印按钮 -->
                     <button onclick="printFilteredDetails()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow cursor-pointer flex items-center gap-1">
                         🖨️ 导出打印 (A5单页)
                     </button>
@@ -334,9 +321,7 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 3: Subcon 分包与垫付管理                                 -->
-    <!-- ============================================================== -->
+    <!-- SECTION 3: Subcon 分包与垫付管理 -->
     <div id="tabSubcon" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500">
@@ -447,9 +432,7 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 4: Marco 现金收支与 Claim 模块                           -->
-    <!-- ============================================================== -->
+    <!-- SECTION 4: Marco 现金收支与 Claim 模块 -->
     <div id="tabPettyCash" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="bg-gradient-to-br from-rose-500 to-rose-700 text-white p-4 rounded-xl shadow-sm">
@@ -550,9 +533,7 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 5: 工地工钱总和搜索功能 (增加年月筛选)                     -->
-    <!-- ============================================================== -->
+    <!-- SECTION 5: 工地工钱总和搜索功能 -->
     <div id="tabSiteSearch" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
             <div class="border-b pb-3">
@@ -608,11 +589,8 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- SECTION 6: 基础名录管理                                          -->
-    <!-- ============================================================== -->
+    <!-- SECTION 6: 基础名录管理 -->
     <div id="tabManage" class="space-y-4 sm:space-y-6 hidden">
-        
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
             <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">👤 预先注册与管理工人档案 (支持隐藏/恢复)</h2>
             <form onsubmit="handleNewWorkerSubmit(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
@@ -697,12 +675,11 @@
                 <div id="archivedSiteTagsArea" class="space-y-2"></div>
             </div>
         </div>
-
     </div>
 
 </div>
 
-<!-- 隐藏的 A5 单页打印模板（含工时、薪水、借钱及 Net Total 算法显示） -->
+<!-- 隐藏的 A5 单页打印模板 -->
 <div id="printArea" class="hidden">
     <div style="font-family:sans-serif; color:#000; font-size:8px; line-height:1.15; max-height:190mm; overflow:hidden;">
         <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:3px; margin-bottom:4px;">
@@ -743,7 +720,6 @@
             </table>
         </div>
 
-        <!-- 汇总与算法展示区 -->
         <div style="border:1px solid #000; padding:4px; margin-top:4px; background:#f9f9f9; font-size:8.5px;">
             <div style="font-weight:bold; margin-bottom:2px; border-bottom:1px dashed #ccc; padding-bottom:1px;">📊 结算算法与总计 (Summary & Net Total)</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:1px;">
@@ -866,7 +842,7 @@
     </div>
 </div>
 
-<!-- 弹窗 5: 编辑修改考勤记录（支持修改工地、工时与备注） -->
+<!-- 弹窗 5: 编辑修改考勤记录 -->
 <div id="editAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时、工地与备注</h3>
@@ -973,34 +949,47 @@
 
 <script>
     // ==============================================================
-    // 🔐 安全访问口令控制（可按需修改）
+    // 极简双账号权限认证
     // ==============================================================
-    const SYSTEM_ACCESS_PASSWORD = "2321"; 
+    const ACCOUNTS = {
+        "marco": "Jialing9696",
+        "leo": "leolim1990"
+    };
 
-    function checkSystemAccessPass() {
-        const input = document.getElementById('sysGatePassInput').value;
-        const errMsg = document.getElementById('gateErrMsg');
-        if (input === SYSTEM_ACCESS_PASSWORD) {
-            sessionStorage.setItem('cons_gate_authorized', 'true');
-            document.getElementById('authGateOverlay').classList.add('hidden');
-            errMsg.classList.add('hidden');
-            document.getElementById('sysGatePassInput').value = '';
+    function executeMinimalLogin() {
+        const uid = (document.getElementById('authUserId').value || '').trim().toLowerCase();
+        const pwd = (document.getElementById('authUserPass').value || '').trim();
+        const err = document.getElementById('authErrMsg');
+
+        if (ACCOUNTS[uid] && ACCOUNTS[uid] === pwd) {
+            sessionStorage.setItem('current_logged_user', uid);
+            document.getElementById('minimalAuthOverlay').classList.add('hidden');
+            err.classList.add('hidden');
+            document.getElementById('authUserPass').value = '';
             
-            // 验证通过后才开始加载初始化数据
+            updateUserBadge(uid);
             initSystemDates();
             refreshAll();
         } else {
-            errMsg.classList.remove('hidden');
-            document.getElementById('sysGatePassInput').value = '';
-            document.getElementById('sysGatePassInput').focus();
+            err.innerText = "密码错误，请重新输入";
+            err.classList.remove('hidden');
+            document.getElementById('authUserPass').value = '';
+            document.getElementById('authUserPass').focus();
         }
     }
 
-    function lockScreenImmediately() {
-        sessionStorage.removeItem('cons_gate_authorized');
-        document.getElementById('authGateOverlay').classList.remove('hidden');
-        document.getElementById('sysGatePassInput').value = '';
-        document.getElementById('sysGatePassInput').focus();
+    function updateUserBadge(uid) {
+        const badge = document.getElementById('currentUserBadge');
+        if (badge) badge.innerText = `👤 ${uid.toUpperCase()}`;
+    }
+
+    function logoutSystem() {
+        sessionStorage.removeItem('current_logged_user');
+        document.getElementById('minimalAuthOverlay').classList.remove('hidden');
+        document.getElementById('authUserId').value = '';
+        document.getElementById('authUserPass').value = '';
+        document.getElementById('authErrMsg').classList.add('hidden');
+        document.getElementById('authUserId').focus();
     }
 
     const SUPABASE_URL = "https://xiplmlalurpnrnzeaywp.supabase.co/rest/v1";
@@ -1047,20 +1036,21 @@
         document.getElementById('pettyTime').value = `${h}:${min}`;
     }
 
-    // 页面加载时优先拦截：未验证禁止发起任何 Supabase 请求
     window.addEventListener('load', () => {
-        if (sessionStorage.getItem('cons_gate_authorized') === 'true') {
-            document.getElementById('authGateOverlay').classList.add('hidden');
+        const loggedUser = sessionStorage.getItem('current_logged_user');
+        if (loggedUser && ACCOUNTS[loggedUser]) {
+            document.getElementById('minimalAuthOverlay').classList.add('hidden');
+            updateUserBadge(loggedUser);
             initSystemDates();
             refreshAll();
         } else {
-            document.getElementById('authGateOverlay').classList.remove('hidden');
-            document.getElementById('sysGatePassInput').focus();
+            document.getElementById('minimalAuthOverlay').classList.remove('hidden');
+            document.getElementById('authUserId').focus();
         }
     });
 
     async function refreshAll() {
-        if (sessionStorage.getItem('cons_gate_authorized') !== 'true') return;
+        if (!sessionStorage.getItem('current_logged_user')) return;
         await Promise.all([
             fetchWorkers(),
             fetchSites(),
@@ -1688,7 +1678,7 @@
                     const worker = workersList.find(w => w.id === att.worker_id) || {};
                     tbodyGroup.innerHTML += `
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2.5 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
+                            <td class="p-2 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
                             <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
                             <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-700">📍 ${escapeHtml(att.site_name)}</span></td>
@@ -1774,7 +1764,6 @@
         }
     }
 
-    // 触发紧凑单页 A5 导出打印（带 Total 与算法公式计算）
     function printFilteredDetails() {
         const workerIdFilter = document.getElementById('detailWorkerFilter').value;
         const searchDate = document.getElementById('detailSearchDate').value;
@@ -2306,7 +2295,6 @@
                 if (!item.is_claimed) unclaimedOut += amt;
             } else {
                 inTotal += amt;
-                if (!item.is_claimed) unclaimedIn += amt;
             }
         });
 
@@ -2457,7 +2445,6 @@
         });
     }
 
-    // 工地综合搜索支持指定年月
     function executeSiteSearch() {
         const siteName = document.getElementById('searchSiteSelect').value;
         const searchMonth = document.getElementById('searchSiteMonth').value;
