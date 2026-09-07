@@ -128,8 +128,8 @@
             <div class="space-y-2 pt-1">
                 <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Client Testimonials</p>
                 
-                <!-- Dr. Joginder -->
-                <button onclick="openMultiPageTestimonial('Testimonial from Dr. Joginder', ['T1.png', 'T2.png'])" 
+                <!-- Dr. Joginder (图片模式) -->
+                <button onclick="openMultiPageTestimonial('Testimonial from Dr. Joginder', ['T1.png', 'T2.png'], false)" 
                    class="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-500/10 to-amber-600/20 hover:from-amber-500/20 hover:to-amber-600/30 transition rounded-xl border border-amber-500/30 text-amber-300 font-semibold text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-105 transition">
@@ -140,8 +140,8 @@
                     <i class="fa-solid fa-chevron-right text-xs text-amber-400"></i>
                 </button>
 
-                <!-- Dato' Seri Lee (商业地产/工业厂房投资者风格) -->
-                <button onclick="openSingleTestimonial('Testimonial from Dato\' Seri Lee', 'T3.png')" 
+                <!-- Dato' Seri Lee (文字模式) -->
+                <button onclick="openTextTestimonial('Testimonial from Dato\' Seri Lee', `As an industrial park investor, timing and structural integrity are everything. Marco Lim and his team at Lim Sheng Construction demonstrated exceptional G7-level execution. They delivered our project ahead of schedule while strictly adhering to budget and engineering specifications. Highly professional and reliable contractor.`)" 
                    class="w-full flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 transition rounded-xl border border-white/10 text-gray-300 font-medium text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-white/10 text-gray-300 flex items-center justify-center group-hover:scale-105 transition">
@@ -152,8 +152,8 @@
                     <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
                 </button>
 
-                <!-- Ir. David Tan (资深土木/结构工程师风格) -->
-                <button onclick="openSingleTestimonial('Testimonial from Ir. David Tan', 'T4.png')" 
+                <!-- Ir. David Tan (文字模式) -->
+                <button onclick="openTextTestimonial('Testimonial from Ir. David Tan', `Working alongside Marco Lim on complex structural projects has been an absolute reassurance. Their attention to detail, adherence to local authority regulations, and pristine finishing quality set a high benchmark in the construction industry. A truly commendable G7 contractor.`)" 
                    class="w-full flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 transition rounded-xl border border-white/10 text-gray-300 font-medium text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-white/10 text-gray-300 flex items-center justify-center group-hover:scale-105 transition">
@@ -204,7 +204,7 @@
 
     </div>
 
-    <!-- 🌟 Testimonial 弹窗组件 -->
+    <!-- 🌟 Testimonial 弹窗组件 (支持图片或文字切换) -->
     <div id="testimonialModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
         <div class="bg-[#12161c] border border-amber-500/30 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
             
@@ -215,8 +215,10 @@
                 </button>
             </div>
 
-            <div class="p-4 flex items-center justify-center overflow-auto bg-black/60 flex-1 relative min-h-[300px]">
-                <img id="modalImage" src="" alt="Testimonial Image" class="max-h-[60vh] max-w-full object-contain rounded-lg shadow-md">
+            <!-- 内容展示区 (可同时承载图片或文字) -->
+            <div class="p-6 flex items-center justify-center overflow-auto bg-black/60 flex-1 relative min-h-[250px]">
+                <img id="modalImage" src="" alt="Testimonial Image" class="max-h-[60vh] max-w-full object-contain rounded-lg shadow-md hidden">
+                <div id="modalText" class="text-gray-300 text-sm leading-relaxed text-center font-normal hidden px-4 py-2"></div>
             </div>
 
             <div id="paginationBar" class="flex items-center justify-between px-6 py-3.5 bg-[#181e28] border-t border-white/15">
@@ -237,8 +239,10 @@
     <script>
         let currentImages = [];
         let currentIndex = 0;
+        let isTextMode = false;
 
         function openMultiPageTestimonial(title, images) {
+            isTextMode = false;
             currentImages = images;
             currentIndex = 0;
             document.getElementById('modalTitle').innerText = title;
@@ -246,20 +250,31 @@
             document.getElementById('testimonialModal').classList.remove('hidden');
         }
 
-        function openSingleTestimonial(title, imagePath) {
-            currentImages = [imagePath];
-            currentIndex = 0;
+        function openTextTestimonial(title, textContent) {
+            isTextMode = true;
             document.getElementById('modalTitle').innerText = title;
-            updateModalContent();
+            
+            document.getElementById('modalImage').classList.add('hidden');
+            const textEl = document.getElementById('modalText');
+            textEl.innerText = textContent;
+            textEl.classList.remove('hidden');
+
+            document.getElementById('paginationBar').style.display = 'none';
             document.getElementById('testimonialModal').classList.remove('hidden');
         }
 
         function updateModalContent() {
             const imgElement = document.getElementById('modalImage');
+            const textElement = document.getElementById('modalText');
+            
+            textElement.classList.add('hidden');
+            imgElement.classList.remove('hidden');
+
             imgElement.src = currentImages[currentIndex];
             
+            // 如果图片文件还未上传时的容错
             imgElement.onerror = function() {
-                this.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PlaceholderImage";
+                this.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ImageNotFound";
             };
 
             const paginationBar = document.getElementById('paginationBar');
@@ -277,14 +292,14 @@
         }
 
         function prevPage() {
-            if (currentIndex > 0) {
+            if (!isTextMode && currentIndex > 0) {
                 currentIndex--;
                 updateModalContent();
             }
         }
 
         function nextPage() {
-            if (currentIndex < currentImages.length - 1) {
+            if (!isTextMode && currentIndex < currentImages.length - 1) {
                 currentIndex++;
                 updateModalContent();
             }
