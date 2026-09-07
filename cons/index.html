@@ -929,18 +929,13 @@
 </div>
 
 <script>
-    const SECURE_ACCOUNTS = {
-        "marco": "3b2361fc378d3879f9723ec09aa5ba9f3b14dd1aa96701fbc3f677119ffedc42",
-        "leo":   "5d53cb1cbfad4ca07d7224f8d95166f24d2ca794625b1574a491ca0f47e30df9",
-        "key":   "8c3534b8c09ea52e72401f930e1564f9bfd89e53ceb5dcf0234a94939ff72993"
+	const SECURE_ACCOUNTS = {
+        "marco": "SmlhbGluZzk2OTY=",
+        "leo":   "bGVvbGltMTk5MA==",
+        "key":   "d2lua2V5OTk="
     };
 
-    async function hashPassword(str) {
-        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    async function executeMinimalLogin() {
+    function executeMinimalLogin() {
         const uid = (document.getElementById('authUserId').value || '').trim().toLowerCase();
         const pwd = (document.getElementById('authUserPass').value || '').trim();
         const err = document.getElementById('authErrMsg');
@@ -951,23 +946,26 @@
             return;
         }
 
-        const hashedInput = await hashPassword(pwd);
+        try {
+            const encodedInput = btoa(pwd);
+            if (SECURE_ACCOUNTS[uid] && SECURE_ACCOUNTS[uid] === encodedInput) {
+                sessionStorage.setItem('current_logged_user', uid);
+                document.getElementById('minimalAuthOverlay').classList.add('hidden');
+                err.classList.add('hidden');
+                document.getElementById('authUserPass').value = '';
+                
+                updateUserBadge(uid);
+                initSystemDates();
+                refreshAll();
+                return;
+            }
+        } catch (e) {}
 
-        if (SECURE_ACCOUNTS[uid] && SECURE_ACCOUNTS[uid] === hashedInput) {
-            sessionStorage.setItem('current_logged_user', uid);
-            document.getElementById('minimalAuthOverlay').classList.add('hidden');
-            err.classList.add('hidden');
-            document.getElementById('authUserPass').value = '';
-            
-            updateUserBadge(uid);
-            initSystemDates();
-            refreshAll();
-        } else {
-            err.innerText = "密码错误，请重新输入";
-            err.classList.remove('hidden');
-            document.getElementById('authUserPass').value = '';
-            document.getElementById('authUserPass').focus();
-        }
+        err.innerText = "密码错误，请重新输入";
+        err.classList.remove('hidden');
+        document.getElementById('authUserPass').value = '';
+        document.getElementById('authUserPass').focus();
+    }
     }
 
     function updateUserBadge(uid) {
