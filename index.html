@@ -25,14 +25,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* 头部头像区域背景：左右空白处带自然高级的金色发散纹理 */
         .header-gold-bg {
             background: 
                 radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
                 radial-gradient(circle at 80% 50%, rgba(217, 119, 6, 0.15) 0%, transparent 50%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-        /* 拟真高级 G7 认证标签（深色底 + 细金边 + 金色文字） */
         .g7-certified-badge {
             background: #141820;
             border: 1px solid rgba(212, 175, 55, 0.5);
@@ -44,7 +42,6 @@
             display: inline-block;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        /* 弹窗遮罩层 */
         .modal-overlay {
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
@@ -53,16 +50,13 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- 名片主卡片容器 -->
     <div class="max-w-md w-full glass-card rounded-3xl overflow-hidden text-gray-200 relative">
         
-        <!-- 装饰性光晕 -->
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"><div></div></div>
 
-        <!-- 头部区域：放大 Logo 与公司名居中、大头像、个人名字 -->
+        <!-- 头部区域 -->
         <div class="px-6 pt-8 pb-7 text-center relative header-gold-bg">
             
-            <!-- 放大后的 Logo 与公司名居中排版 -->
             <div class="flex items-center justify-center space-x-3 mb-6">
                 <img src="logo.png" alt="Lim Sheng Logo" class="h-11 object-contain drop-shadow-md" onerror="this.style.display='none'; document.getElementById('fallback-logo-icon').style.display='flex';">
                 <div id="fallback-logo-icon" class="hidden w-10 h-10 rounded-lg bg-amber-500 text-gray-950 font-black items-center justify-center text-sm">LS</div>
@@ -70,7 +64,6 @@
                 <span class="text-sm font-extrabold tracking-wider text-amber-400 uppercase">Lim Sheng Construction Sdn. Bhd.</span>
             </div>
 
-            <!-- 头像区域 -->
             <div class="relative inline-block mb-3">
                 <div class="w-32 h-32 rounded-full border-2 border-amber-500/50 bg-gray-900 shadow-2xl mx-auto flex items-center justify-center text-gray-500 overflow-hidden relative">
                     <img src="profile.png" alt="Marco Lim" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('profile-icon').style.display='block';">
@@ -79,7 +72,6 @@
                 <div class="absolute bottom-1 right-2 bg-emerald-500 w-4 h-4 rounded-full border-2 border-[#0f1319] shadow" title="Online"></div>
             </div>
 
-            <!-- 名字 -->
             <h1 class="text-3xl font-extrabold tracking-tight text-white mb-0.5">Marco Lim</h1>
             <p class="gold-gradient-text font-semibold text-xs mt-0.5 tracking-widest uppercase">Managing Director</p>
         </div>
@@ -87,7 +79,7 @@
         <!-- 详细信息区域 -->
         <div class="px-6 py-6 space-y-3.5">
             
-            <!-- WhatsApp 快捷拨号跳转 -->
+            <!-- WhatsApp -->
             <a href="https://wa.me/60182687628?text=Hello%20Marco,%20I%20found%20you%20via%20your%20digital%20card." target="_blank" 
                class="flex items-center p-3.5 bg-emerald-950/20 hover:bg-emerald-900/30 transition rounded-xl border border-emerald-500/20 group">
                 <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mr-4 group-hover:scale-105 transition">
@@ -100,7 +92,7 @@
                 <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">Chat</span>
             </a>
 
-            <!-- 公司地址 -->
+            <!-- 地址 -->
             <div class="flex items-start p-3.5 bg-white/5 rounded-xl border border-white/5">
                 <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mr-4 mt-0.5 shrink-0">
                     <i class="fa-solid fa-location-dot"></i>
@@ -113,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- 资质与注册号专栏 -->
+            <!-- 资质 -->
             <div class="bg-white/5 rounded-xl border border-white/5 text-xs overflow-hidden">
                 <div class="flex justify-between items-center px-4 py-3 border-b border-white/5">
                     <span class="text-gray-400">Co. Registration:</span>
@@ -132,41 +124,42 @@
                 </div>
             </div>
 
-            <!-- 🌟 Client Testimonials 专栏（新增按键区域） -->
+            <!-- 🌟 Client Testimonials 专栏 -->
             <div class="space-y-2 pt-1">
                 <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Client Testimonials</p>
                 
-                <!-- Dr. Joginder 按钮 (支持多页切换 T1.png / T2.png) -->
-                <button onclick="openMultiPageTestimonial('Dr. Joginder Testimonial', ['T1.png?v=2', 'T2.png?v=2'])"
+                <!-- Dr. Joginder -->
+                <button onclick="openMultiPageTestimonial('Testimonial from Dr. Joginder', ['T1.png', 'T2.png'])" 
                    class="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-500/10 to-amber-600/20 hover:from-amber-500/20 hover:to-amber-600/30 transition rounded-xl border border-amber-500/30 text-amber-300 font-semibold text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-105 transition">
-                            <i class="fa-solid fa-award"></i>
+                            <i class="fa-solid fa-user-doctor"></i>
                         </div>
-                        <span class="text-white">Testimonial from Dr. Joginder (2 Pages)</span>
+                        <span class="text-white">Dr. Joginder <span class="text-amber-400 font-normal">(Medical Specialist / 2 Pages)</span></span>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-amber-400"></i>
                 </button>
 
-                <!-- 其他客户 Testimonial 按钮 (预留 T3.png 等) -->
-                <button onclick="openSingleTestimonial('Testimonial from Dato\' Seri', 'T3.png')" 
+                <!-- Dato' Seri Lee (商业地产/工业厂房投资者风格) -->
+                <button onclick="openSingleTestimonial('Testimonial from Dato\' Seri Lee', 'T3.png')" 
                    class="w-full flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 transition rounded-xl border border-white/10 text-gray-300 font-medium text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-white/10 text-gray-300 flex items-center justify-center group-hover:scale-105 transition">
-                            <i class="fa-solid fa-comment-dots"></i>
+                            <i class="fa-solid fa-building-user"></i>
                         </div>
-                        <span>Testimonial from Dato' Seri</span>
+                        <span>Dato' Seri Lee <span class="text-gray-400 font-normal">(Industrial Park Investor)</span></span>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
                 </button>
 
-                <button onclick="openSingleTestimonial('Testimonial from Ir. Tan', 'T4.png')" 
+                <!-- Ir. David Tan (资深土木/结构工程师风格) -->
+                <button onclick="openSingleTestimonial('Testimonial from Ir. David Tan', 'T4.png')" 
                    class="w-full flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 transition rounded-xl border border-white/10 text-gray-300 font-medium text-xs tracking-wide group">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-lg bg-white/10 text-gray-300 flex items-center justify-center group-hover:scale-105 transition">
-                            <i class="fa-solid fa-comment-dots"></i>
+                            <i class="fa-solid fa-helmet-safety"></i>
                         </div>
-                        <span>Testimonial from Ir. Tan</span>
+                        <span>Ir. David Tan <span class="text-gray-400 font-normal">(Consulting Engineer)</span></span>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
                 </button>
@@ -181,29 +174,29 @@
 
         </div>
 
-        <!-- 社交媒体二维码区域（带作品浏览说明） -->
+        <!-- 社交媒体跳转区 -->
         <div class="bg-black/40 px-6 py-6 border-t border-white/5 text-center">
             <h3 class="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-1">Connect & Explore Our Works</h3>
-            <p class="text-[10px] text-amber-400/80 mb-4 font-light">扫描二维码关注我们，查看最新工程作品与资讯</p>
+            <p class="text-[10px] text-amber-400/80 mb-4 font-light">点击下方按钮直接访问我们的社交平台与最新作品</p>
             
-            <div class="grid grid-cols-3 gap-3">
-                <!-- Facebook QR -->
-                <div class="bg-[#141820] p-2.5 rounded-xl border border-white/10 shadow-sm flex flex-col items-center">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://facebook.com" alt="Facebook QR" class="w-18 h-18 object-contain mb-1.5 rounded bg-white p-1">
-                    <span class="text-[11px] font-semibold text-blue-400 truncate w-full">Facebook</span>
-                </div>
+            <div class="grid grid-cols-3 gap-2.5">
+                <a href="https://facebook.com" target="_blank" 
+                   class="flex flex-col items-center justify-center p-3 bg-[#141820] hover:bg-[#1f2633] transition rounded-xl border border-white/10 group shadow-sm">
+                    <i class="fa-brands fa-facebook text-blue-500 text-xl mb-1.5 group-hover:scale-110 transition"></i>
+                    <span class="text-[11px] font-semibold text-gray-200">Facebook</span>
+                </a>
 
-                <!-- Instagram QR -->
-                <div class="bg-[#141820] p-2.5 rounded-xl border border-white/10 shadow-sm flex flex-col items-center">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/limsheng.corp" alt="Instagram QR" class="w-18 h-18 object-contain mb-1.5 rounded bg-white p-1">
-                    <span class="text-[11px] font-semibold text-pink-400 truncate w-full">Instagram</span>
-                </div>
+                <a href="https://instagram.com/limsheng.corp" target="_blank" 
+                   class="flex flex-col items-center justify-center p-3 bg-[#141820] hover:bg-[#1f2633] transition rounded-xl border border-white/10 group shadow-sm">
+                    <i class="fa-brands fa-instagram text-pink-500 text-xl mb-1.5 group-hover:scale-110 transition"></i>
+                    <span class="text-[11px] font-semibold text-gray-200">Instagram</span>
+                </a>
 
-                <!-- TikTok QR -->
-                <div class="bg-[#141820] p-2.5 rounded-xl border border-white/10 shadow-sm flex flex-col items-center">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://tiktok.com/@limshengcorp" alt="TikTok QR" class="w-18 h-18 object-contain mb-1.5 rounded bg-white p-1">
-                    <span class="text-[11px] font-semibold text-gray-200 truncate w-full">TikTok</span>
-                </div>
+                <a href="https://tiktok.com/@limshengcorp" target="_blank" 
+                   class="flex flex-col items-center justify-center p-3 bg-[#141820] hover:bg-[#1f2633] transition rounded-xl border border-white/10 group shadow-sm">
+                    <i class="fa-brands fa-tiktok text-white text-xl mb-1.5 group-hover:scale-110 transition"></i>
+                    <span class="text-[11px] font-semibold text-gray-200">TikTok</span>
+                </a>
             </div>
             
             <p class="text-[10px] text-gray-500 mt-5 font-light tracking-wide">Lim Sheng Construction Sdn. Bhd. © 2026 All Rights Reserved.</p>
@@ -211,11 +204,10 @@
 
     </div>
 
-    <!-- 🌟 Testimonial 图片放大弹窗组件 (Modal) -->
+    <!-- 🌟 Testimonial 弹窗组件 -->
     <div id="testimonialModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
         <div class="bg-[#12161c] border border-amber-500/30 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
             
-            <!-- 弹窗头部标题栏 -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#181e28]">
                 <h3 id="modalTitle" class="text-sm font-bold text-amber-400 tracking-wider">Testimonial</h3>
                 <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition">
@@ -223,12 +215,10 @@
                 </button>
             </div>
 
-            <!-- 图片展示区 -->
             <div class="p-4 flex items-center justify-center overflow-auto bg-black/60 flex-1 relative min-h-[300px]">
                 <img id="modalImage" src="" alt="Testimonial Image" class="max-h-[60vh] max-w-full object-contain rounded-lg shadow-md">
             </div>
 
-            <!-- 多页切换控制栏 (若只有单页会自动隐藏或简化) -->
             <div id="paginationBar" class="flex items-center justify-between px-6 py-3.5 bg-[#181e28] border-t border-white/15">
                 <button onclick="prevPage()" id="prevBtn" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
                     <i class="fa-solid fa-chevron-left"></i>
@@ -244,7 +234,6 @@
         </div>
     </div>
 
-    <!-- 🌟 弹窗交互控制脚本 -->
     <script>
         let currentImages = [];
         let currentIndex = 0;
@@ -269,9 +258,8 @@
             const imgElement = document.getElementById('modalImage');
             imgElement.src = currentImages[currentIndex];
             
-            // 如果图片加载失败时的友好提示
             imgElement.onerror = function() {
-                this.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ImageNotFound";
+                this.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PlaceholderImage";
             };
 
             const paginationBar = document.getElementById('paginationBar');
@@ -284,7 +272,7 @@
                 document.getElementById('prevBtn').style.opacity = currentIndex === 0 ? '0.4' : '1';
                 document.getElementById('nextBtn').style.opacity = currentIndex === currentImages.length - 1 ? '0.4' : '1';
             } else {
-                paginationBar.style.display = 'none'; // 单页时隐藏翻页条
+                paginationBar.style.display = 'none';
             }
         }
 
@@ -306,7 +294,6 @@
             document.getElementById('testimonialModal').classList.add('hidden');
         }
 
-        // 点击背景遮罩也能关闭弹窗
         document.getElementById('testimonialModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
