@@ -33,9 +33,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 p-2 sm:p-5 md:p-8">
 
-<!-- ============================================================== -->
-<!-- 极简登录层 (去除所有公司名称与标语，只留纯粹 ID/Password)      -->
-<!-- ============================================================== -->
 <div id="minimalAuthOverlay" class="fixed inset-0 bg-[#0f172a] z-[999999] flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6 space-y-4 text-left">
         <div>
@@ -62,7 +59,6 @@
 
 <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
 
-    <!-- 顶部公司抬头与业务模块切换 -->
     <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
@@ -85,7 +81,6 @@
             </div>
         </div>
 
-        <!-- 导航标签页 -->
         <div class="flex flex-wrap border-b border-slate-200 gap-1.5 pb-2">
             <button id="navWorkersBtn" type="button" onclick="switchMainTab('workers')"
                 class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer">
@@ -114,7 +109,6 @@
         </div>
     </div>
 
-    <!-- SECTION 1: 出勤打卡与借款月结 -->
     <div id="tabWorkers" class="space-y-4 sm:space-y-6">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
@@ -277,7 +271,6 @@
         </div>
     </div>
 
-    <!-- SECTION 2: 全量打卡/借款明细表 -->
     <div id="tabDailyDetail" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
@@ -321,7 +314,6 @@
         </div>
     </div>
 
-    <!-- SECTION 3: Subcon 分包与垫付管理 -->
     <div id="tabSubcon" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500">
@@ -432,7 +424,6 @@
         </div>
     </div>
 
-    <!-- SECTION 4: Marco 现金收支与 Claim 模块 -->
     <div id="tabPettyCash" class="space-y-4 sm:space-y-6 hidden">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="bg-gradient-to-br from-rose-500 to-rose-700 text-white p-4 rounded-xl shadow-sm">
@@ -533,7 +524,6 @@
         </div>
     </div>
 
-    <!-- SECTION 5: 工地工钱总和搜索功能 -->
     <div id="tabSiteSearch" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
             <div class="border-b pb-3">
@@ -589,7 +579,6 @@
         </div>
     </div>
 
-    <!-- SECTION 6: 基础名录管理 -->
     <div id="tabManage" class="space-y-4 sm:space-y-6 hidden">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
             <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">👤 预先注册与管理工人档案 (支持隐藏/恢复)</h2>
@@ -679,7 +668,6 @@
 
 </div>
 
-<!-- 隐藏的 A5 单页打印模板 -->
 <div id="printArea" class="hidden">
     <div style="font-family:sans-serif; color:#000; font-size:8px; line-height:1.15; max-height:190mm; overflow:hidden;">
         <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:3px; margin-bottom:4px;">
@@ -740,7 +728,6 @@
     </div>
 </div>
 
-<!-- 弹窗 1: 编辑工人资料 -->
 <div id="editWorkerModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改员工档案 (管理操作安全锁)</h3>
@@ -772,7 +759,6 @@
     </div>
 </div>
 
-<!-- 弹窗 2: Subcon 合同编辑修改 -->
 <div id="editSubconContractModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改分包工程合同</h3>
@@ -800,7 +786,6 @@
     </div>
 </div>
 
-<!-- 弹窗 3: 书记确认 Claimed -->
 <div id="claimPvModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">🧾 确认已报销付款 (Claimed)</h3>
@@ -818,7 +803,6 @@
     </div>
 </div>
 
-<!-- 弹窗 4: VO 追加款弹窗 -->
 <div id="voModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">➕ 追加 VO 变更工程款</h3>
@@ -842,7 +826,6 @@
     </div>
 </div>
 
-<!-- 弹窗 5: 编辑修改考勤记录 -->
 <div id="editAttendanceModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改出勤工时、工地与备注</h3>
@@ -867,7 +850,6 @@
     </div>
 </div>
 
-<!-- 弹窗 6: 批量勾选一键修改日薪/时薪 -->
 <div id="batchEditModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">⚡ 一键批量修改所选记录的工钱</h3>
@@ -883,7 +865,6 @@
     </div>
 </div>
 
-<!-- 弹窗 7: 编辑 Marco 现金流水记录 -->
 <div id="editPettyCashModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-5 space-y-3">
         <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 编辑修改现金流水记录</h3>
@@ -948,21 +929,31 @@
 </div>
 
 <script>
-    // ==============================================================
-    // 极简多账号权限认证
-    // ==============================================================
-    const ACCOUNTS = {
-        "marco": "Jialing9696",
-        "leo": "leolim1990",
-        "key": "winkey99"
+    const SECURE_ACCOUNTS = {
+        "marco": "3b2361fc378d3879f9723ec09aa5ba9f3b14dd1aa96701fbc3f677119ffedc42",
+        "leo":   "5d53cb1cbfad4ca07d7224f8d95166f24d2ca794625b1574a491ca0f47e30df9",
+        "key":   "8c3534b8c09ea52e72401f930e1564f9bfd89e53ceb5dcf0234a94939ff72993"
     };
 
-    function executeMinimalLogin() {
+    async function hashPassword(str) {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function executeMinimalLogin() {
         const uid = (document.getElementById('authUserId').value || '').trim().toLowerCase();
         const pwd = (document.getElementById('authUserPass').value || '').trim();
         const err = document.getElementById('authErrMsg');
 
-        if (ACCOUNTS[uid] && ACCOUNTS[uid] === pwd) {
+        if (!uid || !pwd) {
+            err.innerText = "请输入账号与密码";
+            err.classList.remove('hidden');
+            return;
+        }
+
+        const hashedInput = await hashPassword(pwd);
+
+        if (SECURE_ACCOUNTS[uid] && SECURE_ACCOUNTS[uid] === hashedInput) {
             sessionStorage.setItem('current_logged_user', uid);
             document.getElementById('minimalAuthOverlay').classList.add('hidden');
             err.classList.add('hidden');
@@ -1039,7 +1030,7 @@
 
     window.addEventListener('load', () => {
         const loggedUser = sessionStorage.getItem('current_logged_user');
-        if (loggedUser && ACCOUNTS[loggedUser]) {
+        if (loggedUser && SECURE_ACCOUNTS[loggedUser]) {
             document.getElementById('minimalAuthOverlay').classList.add('hidden');
             updateUserBadge(loggedUser);
             initSystemDates();
@@ -1679,7 +1670,7 @@
                     const worker = workersList.find(w => w.id === att.worker_id) || {};
                     tbodyGroup.innerHTML += `
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2.5 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
+                            <td class="p-2 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
                             <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
                             <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-700">📍 ${escapeHtml(att.site_name)}</span></td>
@@ -2245,7 +2236,7 @@
                 <option value="Worker advance">Worker advance (工人预支借款)</option>
                 <option value="工人杂支">现场杂支 / 伙食水钱</option>
                 <option value="卖废铁现金">卖工地废铁/旧料 (收入)</option>
-                <option value="其他">其他垫付</option>
+                <option value="其他">其他款项</option>
             `;
         }
     }
@@ -2297,7 +2288,6 @@
                 if (!item.is_claimed) unclaimedOut += amt;
             } else {
                 inTotal += amt;
-                if (!item.is_claimed) unclaimedIn += amt;
             }
         });
 
