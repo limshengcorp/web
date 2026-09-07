@@ -949,12 +949,12 @@
 
 <script>
     // ==============================================================
-    // 极简双账号权限认证
+    // 极简多账号权限认证
     // ==============================================================
     const ACCOUNTS = {
         "marco": "Jialing9696",
-		"key": "winkey99",
-        "leo": "leolim1990"
+        "leo": "leolim1990",
+        "key": "winkey99"
     };
 
     function executeMinimalLogin() {
@@ -1679,7 +1679,7 @@
                     const worker = workersList.find(w => w.id === att.worker_id) || {};
                     tbodyGroup.innerHTML += `
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
+                            <td class="p-2.5 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
                             <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
                             <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-700">📍 ${escapeHtml(att.site_name)}</span></td>
@@ -2244,6 +2244,7 @@
                 <option value="维修/安装">机械维修 / 安装费</option>
                 <option value="Worker advance">Worker advance (工人预支借款)</option>
                 <option value="工人杂支">现场杂支 / 伙食水钱</option>
+                <option value="卖废铁现金">卖工地废铁/旧料 (收入)</option>
                 <option value="其他">其他垫付</option>
             `;
         }
@@ -2296,6 +2297,7 @@
                 if (!item.is_claimed) unclaimedOut += amt;
             } else {
                 inTotal += amt;
+                if (!item.is_claimed) unclaimedIn += amt;
             }
         });
 
