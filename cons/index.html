@@ -33,6 +33,39 @@
 </head>
 <body class="bg-slate-100 text-slate-800 p-2 sm:p-5 md:p-8">
 
+<!-- ============================================================== -->
+<!-- 🔐 全局安全访问拦截门锁 (默认死封，未授权不拉取任何数据)         -->
+<!-- ============================================================== -->
+<div id="authGateOverlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[999999] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 space-y-5 border border-slate-200 text-center">
+        <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
+            🔒
+        </div>
+        <div>
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">LIM SHENG CONSTRUCTION</h2>
+            <p class="text-xs text-slate-500 mt-1">施工协同与劳务核算系统 · 内部安全受控访问</p>
+        </div>
+        <div class="space-y-3 text-left">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">系统操作访问口令</label>
+                <input type="password" id="sysGatePassInput" placeholder="请输入访问密码..." 
+                       class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none transition"
+                       onkeydown="if(event.key==='Enter') checkSystemAccessPass()">
+            </div>
+            <div id="gateErrMsg" class="text-xs text-rose-600 font-bold hidden flex items-center gap-1">
+                ⚠️ 口令错误，无权访问数据库！
+            </div>
+            <button type="button" onclick="checkSystemAccessPass()" 
+                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold rounded-xl text-sm shadow-md transition cursor-pointer">
+                🔓 解锁并进入系统
+            </button>
+        </div>
+        <div class="text-[11px] text-slate-400">
+            非授权人员请立即离开，系统操作日志与数据受安全审计保护
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
 
     <!-- 顶部公司抬头与业务模块切换 -->
@@ -50,6 +83,9 @@
                 </button>
                 <button type="button" onclick="toggleManagementMode()" id="mgmtUnlockBtn" class="px-3.5 py-2 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer">
                     🔒 管理模式 (未解锁)
+                </button>
+                <button type="button" onclick="lockScreenImmediately()" title="离开时点击锁定" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer">
+                    🛑 锁定
                 </button>
             </div>
         </div>
@@ -936,6 +972,37 @@
 </div>
 
 <script>
+    // ==============================================================
+    // 🔐 安全访问口令控制（可按需修改）
+    // ==============================================================
+    const SYSTEM_ACCESS_PASSWORD = "2321"; 
+
+    function checkSystemAccessPass() {
+        const input = document.getElementById('sysGatePassInput').value;
+        const errMsg = document.getElementById('gateErrMsg');
+        if (input === SYSTEM_ACCESS_PASSWORD) {
+            sessionStorage.setItem('cons_gate_authorized', 'true');
+            document.getElementById('authGateOverlay').classList.add('hidden');
+            errMsg.classList.add('hidden');
+            document.getElementById('sysGatePassInput').value = '';
+            
+            // 验证通过后才开始加载初始化数据
+            initSystemDates();
+            refreshAll();
+        } else {
+            errMsg.classList.remove('hidden');
+            document.getElementById('sysGatePassInput').value = '';
+            document.getElementById('sysGatePassInput').focus();
+        }
+    }
+
+    function lockScreenImmediately() {
+        sessionStorage.removeItem('cons_gate_authorized');
+        document.getElementById('authGateOverlay').classList.remove('hidden');
+        document.getElementById('sysGatePassInput').value = '';
+        document.getElementById('sysGatePassInput').focus();
+    }
+
     const SUPABASE_URL = "https://xiplmlalurpnrnzeaywp.supabase.co/rest/v1";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpcGxtbGFsdXJwbnJuemVheXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mjk2NjYsImV4cCI6MjEwNDAwNTY2Nn0.uIRTO0MAvQHGzQzdWwWZCufeMsnuU9LQTHUOI60lTXQ";
 
@@ -980,12 +1047,20 @@
         document.getElementById('pettyTime').value = `${h}:${min}`;
     }
 
+    // 页面加载时优先拦截：未验证禁止发起任何 Supabase 请求
     window.addEventListener('load', () => {
-        initSystemDates();
-        refreshAll();
+        if (sessionStorage.getItem('cons_gate_authorized') === 'true') {
+            document.getElementById('authGateOverlay').classList.add('hidden');
+            initSystemDates();
+            refreshAll();
+        } else {
+            document.getElementById('authGateOverlay').classList.remove('hidden');
+            document.getElementById('sysGatePassInput').focus();
+        }
     });
 
     async function refreshAll() {
+        if (sessionStorage.getItem('cons_gate_authorized') !== 'true') return;
         await Promise.all([
             fetchWorkers(),
             fetchSites(),
@@ -1613,7 +1688,7 @@
                     const worker = workersList.find(w => w.id === att.worker_id) || {};
                     tbodyGroup.innerHTML += `
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
+                            <td class="p-2.5 text-center"><input type="checkbox" name="batchAttCb" value="${att.id}"></td>
                             <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
                             <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-700">📍 ${escapeHtml(att.site_name)}</span></td>
