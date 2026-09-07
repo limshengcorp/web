@@ -1755,4 +1755,775 @@
         const searchMonth = document.getElementById('detailSearchMonth').value;
         const siteFilter = document.getElementById('detailSiteFilter').value;
 
-        const workerObj = workersList.find(我只是一个语言模型，不具备这方面的信息或能力，因此没法帮到你。
+        const workerObj = workersList.find(w => w.id === parseInt(workerIdFilter));
+        const workerNameStr = workerObj ? workerObj.name : '全部员工';
+        const monthStr = searchDate ? searchDate : (searchMonth ? searchMonth : '全部时间段');
+
+        document.getElementById('printMetaInfo').innerHTML = `
+            <div><strong>筛选员工:</strong> ${escapeHtml(workerNameStr)} &nbsp;|&nbsp; <strong>时间范围:</strong> ${escapeHtml(monthStr)} &nbsp;|&nbsp; <strong>工地:</strong> ${escapeHtml(siteFilter || '全部')}</div>
+        `;
+
+        const filteredAtt = attendanceList.filter(item => {
+            if (workerIdFilter && item.worker_id !== parseInt(workerIdFilter)) return false;
+            if (siteFilter && item.site_name !== siteFilter) return false;
+            if (searchDate && item.work_date !== searchDate) return false;
+            if (!searchDate && searchMonth && !(item.work_date || '').startsWith(searchMonth)) return false;
+            return true;
+        });
+
+        const filteredAdv = advancesList.filter(item => {
+            if (workerIdFilter && item.worker_id !== parseInt(workerIdFilter)) return false;
+            if (searchDate && item.advance_date !== searchDate) return false;
+            if (!searchDate && searchMonth && !(item.advance_date || '').startsWith(searchMonth)) return false;
+            return true;
+        });
+
+        let totalHours = 0;
+        let sumGross = 0;
+        const attTbody = document.getElementById('printAttTbody');
+        attTbody.innerHTML = '';
+        if (filteredAtt.length === 0) {
+            attTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3px; color:#666;">无匹配出勤记录</td></tr>`;
+        } else {
+            filteredAtt.forEach(att => {
+                const w = workersList.find(x => x.id === att.worker_id) || {};
+                totalHours += Number(att.total_hours || 0);
+                sumGross += Number(att.daily_wage || 0);
+                attTbody.innerHTML += `
+                    <tr>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${att.work_date}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(att.site_name)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:center;">${Number(att.total_hours).toFixed(1)}h</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:right;">RM ${Number(att.daily_wage).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        let sumAdv = 0;
+        const advTbody = document.getElementById('printAdvTbody');
+        advTbody.innerHTML = '';
+        if (filteredAdv.length === 0) {
+            advTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3px; color:#666;">无匹配借款/代扣记录</td></tr>`;
+        } else {
+            filteredAdv.forEach(adv => {
+                const w = workersList.find(x => x.id === adv.worker_id) || {};
+                sumAdv += Number(adv.amount || 0);
+                advTbody.innerHTML += `
+                    <tr>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${adv.advance_date}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(w.name || '-')}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px;">${escapeHtml(adv.advance_type)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:right;">RM ${Number(adv.amount).toFixed(2)}</td>
+                        <td style="border:1px solid #bbb; padding:1px 2px; text-align:left;">${escapeHtml(adv.note || '-')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        const netTotal = sumGross - sumAdv;
+        document.getElementById('printSumHours').innerText = `${totalHours.toFixed(1)} h`;
+        document.getElementById('printSumGross').innerText = `RM ${sumGross.toFixed(2)}`;
+        document.getElementById('printSumAdv').innerText = `RM ${sumAdv.toFixed(2)}`;
+        document.getElementById('printNetTotal').innerText = `RM ${netTotal.toFixed(2)}`;
+
+        const now = new Date();
+        document.getElementById('printTimeSpan').innerText = now.toISOString().replace('T', ' ').slice(0, 16);
+
+        document.getElementById('printArea').classList.remove('hidden');
+        window.print();
+        document.getElementById('printArea').classList.add('hidden');
+    }
+
+    function toggleSelectAllBatch(masterCb) {
+        document.querySelectorAll('input[name="batchAttCb"]').forEach(cb => cb.checked = masterCb.checked);
+    }
+
+    function openBatchEditModal() {
+        const checked = document.querySelectorAll('input[name="batchAttCb"]:checked');
+        if (checked.length === 0) return alert("请先在考勤明细列表中勾选需要修改薪资的记录！");
+        document.getElementById('batchNewDailyRate').value = '';
+        document.getElementById('batchEditModal').classList.remove('hidden');
+    }
+
+    function closeBatchEditModal() {
+        document.getElementById('batchEditModal').classList.add('hidden');
+    }
+
+    async function submitBatchEdit() {
+        const newRate = parseFloat(document.getElementById('batchNewDailyRate').value);
+        if (isNaN(newRate) || newRate <= 0) return alert("请输入有效的日薪/时薪标准！");
+
+        const checked = document.querySelectorAll('input[name="batchAttCb"]:checked');
+        const ids = Array.from(checked).map(cb => parseInt(cb.value));
+
+        for (let id of ids) {
+            const att = attendanceList.find(item => item.id === id);
+            if (!att) continue;
+            const hourlyRate = newRate / 8;
+            const daily_wage = +(Number(att.total_hours) * hourlyRate).toFixed(2);
+
+            await fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ daily_wage })
+            });
+        }
+
+        closeBatchEditModal();
+        await fetchAttendance();
+        renderWorkerMonthlySummary();
+        renderDailyDetailTable();
+        alert(`✅ 成功批量更新了 ${ids.length} 条出勤记录的工钱！`);
+    }
+
+    function openEditAttendanceModal(id) {
+        const att = attendanceList.find(item => item.id === id);
+        if (!att) return;
+        const worker = workersList.find(w => w.id === att.worker_id) || {};
+
+        document.getElementById('editAttId').value = att.id;
+        document.getElementById('editAttWorkerName').innerText = worker.name || '未知';
+        document.getElementById('editAttHours').value = att.total_hours;
+        document.getElementById('editAttNote').value = att.note || '';
+        
+        const siteSelect = document.getElementById('editAttSiteName');
+        siteSelect.value = att.site_name;
+
+        document.getElementById('editAttendanceModal').classList.remove('hidden');
+    }
+
+    function closeEditAttendanceModal() {
+        document.getElementById('editAttendanceModal').classList.add('hidden');
+    }
+
+    async function submitEditAttendance() {
+        const id = document.getElementById('editAttId').value;
+        const site_name = document.getElementById('editAttSiteName').value;
+        const total_hours = parseFloat(document.getElementById('editAttHours').value);
+        const note = document.getElementById('editAttNote').value.trim();
+
+        if (isNaN(total_hours) || total_hours <= 0) return alert("请输入有效的工时！");
+
+        const att = attendanceList.find(item => item.id == id);
+        const worker = workersList.find(w => w.id === att.worker_id) || { hourly_rate: 12.5 };
+        const hourlyRate = Number(worker.hourly_rate || 12.5);
+        const daily_wage = +(total_hours * hourlyRate).toFixed(2);
+
+        await fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, {
+            method: "PATCH",
+            headers: reqHeaders,
+            body: JSON.stringify({ site_name, total_hours, daily_wage, note })
+        });
+
+        closeEditAttendanceModal();
+        await fetchAttendance();
+        renderWorkerMonthlySummary();
+        renderDailyDetailTable();
+        alert("✅ 考勤工时与工地已修改更新！");
+    }
+
+    async function deleteAttendanceRecord(id) {
+        if (!confirm('确定删除该笔出勤记录？')) return;
+        await fetch(`${SUPABASE_URL}/attendance_records?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+        await fetchAttendance();
+        renderWorkerMonthlySummary();
+        renderDailyDetailTable();
+    }
+
+    async function deleteAdvanceRecord(id) {
+        if (!confirm('确定删除该笔借款记录？')) return;
+        await fetch(`${SUPABASE_URL}/worker_advances?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+        await fetchAdvances();
+        renderWorkerMonthlySummary();
+        renderDailyDetailTable();
+    }
+
+    async function fetchSubconData() {
+        try {
+            const [cRes, pRes, vRes] = await Promise.all([
+                fetch(`${SUPABASE_URL}/subcon_contracts?order=id.desc`, { headers: reqHeaders }),
+                fetch(`${SUPABASE_URL}/subcon_payments?order=payment_time.desc`, { headers: reqHeaders }),
+                fetch(`${SUPABASE_URL}/subcon_vo_records?order=vo_date.desc`, { headers: reqHeaders })
+            ]);
+            subconContracts = await cRes.json();
+            subconPayments = await pRes.json();
+            subconVos = await vRes.json();
+            renderSubconSelectors();
+        } catch (e) { console.error(e); }
+    }
+
+    function renderSubconSelectors() {
+        const select = document.getElementById('payContractSelect');
+        if(!select) return;
+        select.innerHTML = '<option value="">-- 请选择分包工程 --</option>';
+        subconContracts.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${escapeHtml(c.project_name)} (${escapeHtml(c.subcon_name)})</option>`;
+        });
+    }
+
+    async function handleNewSubconSubmit(e) {
+        e.preventDefault();
+        const contract_date = document.getElementById('subContractDate').value;
+        const project_name = document.getElementById('subProjectName').value.trim();
+        const subcon_name = document.getElementById('subSubconName').value.trim();
+        const base_amount = parseFloat(document.getElementById('subBaseAmount').value);
+
+        await fetch(`${SUPABASE_URL}/subcon_contracts`, {
+            method: "POST",
+            headers: reqHeaders,
+            body: JSON.stringify([{ contract_date, project_name, subcon_name, base_amount, vo_amount: 0 }])
+        });
+        document.getElementById('subProjectName').value = '';
+        document.getElementById('subSubconName').value = '';
+        document.getElementById('subBaseAmount').value = '';
+        await fetchSubconData();
+        renderSubconDashboard();
+        alert(`分包合同 [${project_name}] 建立成功！`);
+    }
+
+    async function handleSubconPaymentSubmit(e) {
+        e.preventDefault();
+        const contract_id = parseInt(document.getElementById('payContractSelect').value);
+        const payment_time = document.getElementById('payDateTime').value;
+        const amount = parseFloat(document.getElementById('payAmount').value);
+        const paid_by = document.getElementById('payPaidBy').value;
+        const payer_name = document.getElementById('payPayerName').value.trim() || 'Marco';
+        const payment_method = document.getElementById('payMethod').value;
+        const note = document.getElementById('payNote').value.trim();
+
+        if (!contract_id || isNaN(amount) || amount <= 0) return alert('请选择项目并填写有效金额！');
+
+        await fetch(`${SUPABASE_URL}/subcon_payments`, {
+            method: "POST",
+            headers: reqHeaders,
+            body: JSON.stringify([{ contract_id, payment_time, amount, paid_by, payer_name, payment_method, note, is_claimed: false, claimed_pv: '' }])
+        });
+        document.getElementById('payAmount').value = '';
+        document.getElementById('payNote').value = '';
+        await fetchSubconData();
+        renderSubconDashboard();
+        alert('Subcon 领款记录已保存！');
+    }
+
+    function renderSubconDashboard() {
+        const container = document.getElementById('subconCardsContainer');
+        if(!container) return;
+        container.innerHTML = '';
+
+        let privateSum = 0;
+        let unclaimedSum = 0;
+        let companySum = 0;
+        let contractAllSum = 0;
+
+        subconPayments.forEach(p => {
+            const amt = Number(p.amount || 0);
+            if (p.paid_by === '私人先给') {
+                privateSum += amt;
+                if (!p.is_claimed) unclaimedSum += amt;
+            } else {
+                companySum += amt;
+            }
+        });
+
+        document.getElementById('subconPrivateTotal').innerText = privateSum.toFixed(2);
+        document.getElementById('subconUnclaimedTotal').innerText = `待公司 Claim: RM ${unclaimedSum.toFixed(2)}`;
+        document.getElementById('subconCompanyTotal').innerText = companySum.toFixed(2);
+
+        subconContracts.forEach(c => {
+            let totalVO = 0;
+            const currentVos = subconVos.filter(v => v.contract_id === c.id);
+            currentVos.forEach(v => totalVO += Number(v.vo_amount || 0));
+
+            const finalContractTotal = Number(c.base_amount) + totalVO;
+            contractAllSum += finalContractTotal;
+
+            let paidTotal = 0;
+            const currentPayments = subconPayments.filter(p => p.contract_id === c.id);
+            currentPayments.forEach(p => paidTotal += Number(p.amount || 0));
+
+            const balance = finalContractTotal - paidTotal;
+
+            let paymentRowsHtml = '';
+            if (currentPayments.length === 0) {
+                paymentRowsHtml = '<div class="text-xs text-slate-400 py-2">尚未有领款记录</div>';
+            } else {
+                currentPayments.forEach(p => {
+                    const isPrivate = p.paid_by === '私人先给';
+                    const timeFormatted = p.payment_time.replace('T', ' ').slice(0, 16);
+
+                    let claimHtml = '';
+                    if (isPrivate) {
+                        if (p.is_claimed) {
+                            claimHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">✅ Claimed (${escapeHtml(p.claimed_pv)})</span>`;
+                        } else {
+                            claimHtml = `<button onclick="openClaimModal('subcon', ${p.id})" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">📌 书记点击 Claim</button>`;
+                        }
+                    }
+
+                    paymentRowsHtml += `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-100 text-xs gap-1.5">
+                            <div>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-mono text-slate-400">${timeFormatted}</span>
+                                    <span class="px-1.5 py-0.5 rounded font-bold ${isPrivate ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                                        ${escapeHtml(p.paid_by)} (${escapeHtml(p.payer_name || 'Marco')})
+                                    </span>
+                                    <span class="font-bold text-slate-700">[${escapeHtml(p.payment_method)}]</span>
+                                    ${claimHtml}
+                                </div>
+                                <div class="text-slate-500 mt-0.5">${p.note ? escapeHtml(p.note) : '无备注'}</div>
+                            </div>
+                            <div class="flex items-center gap-3 self-end sm:self-center">
+                                <span class="font-mono font-bold text-rose-600 text-sm">- RM ${Number(p.amount).toFixed(2)}</span>
+                                <button onclick="deleteSubconPayment(${p.id})" class="text-slate-300 hover:text-rose-500 text-xs cursor-pointer">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const card = document.createElement('div');
+            card.className = "p-4 sm:p-5 border border-slate-200 rounded-2xl bg-white space-y-3 shadow-sm";
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                    <div>
+                        <span class="text-base font-black text-slate-900">${escapeHtml(c.project_name)}</span>
+                        <span class="text-xs font-bold text-indigo-600 ml-2">承包: ${escapeHtml(c.subcon_name)}</span>
+                        <div class="text-xs text-slate-400 mt-0.5">签约日期: ${c.contract_date || '未记录'}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="openEditSubconContractModal(${c.id})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg cursor-pointer">
+                            ✏️ 修改合同
+                        </button>
+                        <button type="button" onclick="openVoModal(${c.id})" class="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg cursor-pointer">
+                            ➕ 加 VO
+                        </button>
+                        <button type="button" onclick="deleteSubconContract(${c.id}, '${escapeHtml(c.project_name)}')" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-lg cursor-pointer">
+                            🗑️ 删除合同
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs py-2 bg-slate-50 rounded-xl">
+                    <div><div class="text-slate-400">原合同金额</div><div class="font-bold font-mono text-sm">RM ${Number(c.base_amount).toFixed(2)}</div></div>
+                    <div><div class="text-slate-400">VO 追加</div><div class="font-bold text-indigo-600 font-mono text-sm">+ RM ${totalVO.toFixed(2)}</div></div>
+                    <div><div class="text-slate-400">已付进度款</div><div class="font-bold text-rose-600 font-mono text-sm">- RM ${paidTotal.toFixed(2)}</div></div>
+                    <div><div class="text-slate-400 font-semibold">剩余尾款</div><div class="font-black ${balance >= 0 ? 'text-emerald-700' : 'text-rose-700'} font-mono text-sm">RM ${balance.toFixed(2)}</div></div>
+                </div>
+
+                <div class="space-y-1 pt-1">
+                    <span class="text-xs font-bold text-slate-700">支出明细流水：</span>
+                    <div class="max-h-56 overflow-y-auto pr-1">${paymentRowsHtml}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        document.getElementById('subconAllContractsTotal').innerText = contractAllSum.toFixed(2);
+    }
+
+    async function deleteSubconContract(contractId, projectName) {
+        if (!confirm(`⚠️ 确定要彻底删除分包合同 [${projectName}] 吗？相关的 VO 追加和领款明细也会一并清除！`)) return;
+        await fetch(`${SUPABASE_URL}/subcon_contracts?id=eq.${contractId}`, {
+            method: "DELETE",
+            headers: reqHeaders
+        });
+        await fetchSubconData();
+        renderSubconDashboard();
+        alert(`分包合同 [${projectName}] 已成功删除！`);
+    }
+
+    function openEditSubconContractModal(id) {
+        const c = subconContracts.find(item => item.id === id);
+        if (!c) return;
+        document.getElementById('editSubContractId').value = c.id;
+        document.getElementById('editSubContractDate').value = c.contract_date || '';
+        document.getElementById('editSubProjectName').value = c.project_name;
+        document.getElementById('editSubSubconName').value = c.subcon_name;
+        document.getElementById('editSubBaseAmount').value = c.base_amount;
+        document.getElementById('editSubconContractModal').classList.remove('hidden');
+    }
+
+    function closeEditSubconContractModal() {
+        document.getElementById('editSubconContractModal').classList.add('hidden');
+    }
+
+    async function submitEditSubconContract() {
+        const id = document.getElementById('editSubContractId').value;
+        const contract_date = document.getElementById('editSubContractDate').value;
+        const project_name = document.getElementById('editSubProjectName').value.trim();
+        const subcon_name = document.getElementById('editSubSubconName').value.trim();
+        const base_amount = parseFloat(document.getElementById('editSubBaseAmount').value);
+
+        if (!project_name || isNaN(base_amount)) return alert("请填写完整！");
+
+        await fetch(`${SUPABASE_URL}/subcon_contracts?id=eq.${id}`, {
+            method: "PATCH",
+            headers: reqHeaders,
+            body: JSON.stringify({ contract_date, project_name, subcon_name, base_amount })
+        });
+        closeEditSubconContractModal();
+        await fetchSubconData();
+        renderSubconDashboard();
+        alert("分包工程合同已修改！");
+    }
+
+    async function deleteSubconPayment(id) {
+        if (!confirm('确定删除该笔 Subcon 领款记录？')) return;
+        await fetch(`${SUPABASE_URL}/subcon_payments?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+        await fetchSubconData();
+        renderSubconDashboard();
+    }
+
+    function openVoModal(contractId) {
+        document.getElementById('voContractId').value = contractId;
+        const now = new Date();
+        document.getElementById('voDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('voDesc').value = '';
+        document.getElementById('voAmt').value = '';
+        document.getElementById('voModal').classList.remove('hidden');
+    }
+    function closeVoModal() { document.getElementById('voModal').classList.add('hidden'); }
+
+    async function submitVoRecord() {
+        const contract_id = parseInt(document.getElementById('voContractId').value);
+        const vo_date = document.getElementById('voDate').value;
+        const vo_description = document.getElementById('voDesc').value.trim();
+        const vo_amount = parseFloat(document.getElementById('voAmt').value);
+
+        if (!vo_description || isNaN(vo_amount) || vo_amount <= 0) return alert('请完整填写 VO！');
+
+        await fetch(`${SUPABASE_URL}/subcon_vo_records`, {
+            method: "POST",
+            headers: reqHeaders,
+            body: JSON.stringify([{ contract_id, vo_date, vo_description, vo_amount }])
+        });
+        closeVoModal();
+        await fetchSubconData();
+        renderSubconDashboard();
+    }
+
+    async function fetchPettyCash() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/marco_petty_cash?order=record_date.desc,record_time.desc`, { headers: reqHeaders });
+            pettyCashList = await res.json();
+        } catch (e) { console.error(e); }
+    }
+
+    function togglePettyCategory() {
+        const type = document.getElementById('pettyTransType').value;
+        const cat = document.getElementById('pettyCategory');
+        if (type === 'IN') {
+            cat.innerHTML = `
+                <option value="卖废铁现金">卖工地废铁/废钢筋</option>
+                <option value="退还押金">退还押金/保证金</option>
+                <option value="现场收到款">现场收取客户现金</option>
+                <option value="其他收入">其他现金收入</option>
+            `;
+        } else {
+            cat.innerHTML = `
+                <option value="买料/工具">买料 / 现场五金工具</option>
+                <option value="维修/安装">机械维修 / 安装费</option>
+                <option value="Worker advance">Worker advance (工人预支借款)</option>
+                <option value="工人杂支">现场杂支 / 伙食水钱</option>
+                <option value="其他">其他垫付</option>
+            `;
+        }
+    }
+
+    async function handlePettyCashSubmit(e) {
+        e.preventDefault();
+        const trans_type = document.getElementById('pettyTransType').value;
+        const shop_name = document.getElementById('pettyShopName').value.trim();
+        const record_date = document.getElementById('pettyDate').value;
+        const record_time = document.getElementById('pettyTime').value;
+        const payment_method = document.getElementById('pettyPayMethod').value;
+        const amount = parseFloat(document.getElementById('pettyAmount').value);
+        const category = document.getElementById('pettyCategory').value;
+        const receipt_no = document.getElementById('pettyReceiptNo').value.trim();
+        const description = document.getElementById('pettyDescription').value.trim();
+
+        if (isNaN(amount) || amount <= 0 || !description || !shop_name) return alert('请完整填写收款人、金额与原因！');
+
+        await fetch(`${SUPABASE_URL}/marco_petty_cash`, {
+            method: "POST",
+            headers: reqHeaders,
+            body: JSON.stringify([{ record_date, record_time, trans_type, shop_name, payment_method, amount, category, receipt_no, description, is_claimed: false, pv_number: '' }])
+        });
+
+        document.getElementById('pettyShopName').value = '';
+        document.getElementById('pettyAmount').value = '';
+        document.getElementById('pettyReceiptNo').value = '';
+        document.getElementById('pettyDescription').value = '';
+
+        await fetchPettyCash();
+        renderPettyCashTable();
+        alert('备用金收支已成功录入！');
+    }
+
+    function renderPettyCashTable() {
+        const container = document.getElementById('pettyCashGroupContainer');
+        if(!container) return;
+        container.innerHTML = '';
+
+        let outTotal = 0;
+        let inTotal = 0;
+        let unclaimedOut = 0;
+        let unclaimedIn = 0;
+
+        pettyCashList.forEach(item => {
+            const amt = Number(item.amount || 0);
+            if (item.trans_type === 'OUT') {
+                outTotal += amt;
+                if (!item.is_claimed) unclaimedOut += amt;
+            } else {
+                inTotal += amt;
+            }
+        });
+
+        document.getElementById('pettyOutTotal').innerText = outTotal.toFixed(2);
+        document.getElementById('pettyInTotal').innerText = inTotal.toFixed(2);
+        const netClaim = unclaimedOut - unclaimedIn;
+        document.getElementById('pettyNetClaim').innerText = netClaim.toFixed(2);
+
+        if (pettyCashList.length === 0) {
+            container.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs bg-slate-50 rounded-xl">暂无备用金记录</div>';
+            return;
+        }
+
+        const groupedPetty = {};
+        pettyCashList.forEach(item => {
+            const ym = (item.record_date || '').slice(0, 7) || '未知年月';
+            if (!groupedPetty[ym]) groupedPetty[ym] = [];
+            groupedPetty[ym].push(item);
+        });
+
+        Object.keys(groupedPetty).sort().reverse().forEach(ym => {
+            const records = groupedPetty[ym];
+            const details = document.createElement('details');
+            details.className = "border border-slate-200 rounded-xl bg-slate-50/50 overflow-hidden";
+            details.open = true;
+
+            details.innerHTML = `
+                <summary class="px-4 py-3 font-bold text-xs sm:text-sm bg-white cursor-pointer select-none flex justify-between items-center border-b">
+                    <span class="text-slate-900">💼 ${ym} 现金流水账本 (${records.length} 笔)</span>
+                    <span class="text-xs text-slate-400 font-normal">点击收起/展开</span>
+                </summary>
+                <div class="overflow-x-auto p-2">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm bg-white rounded-lg">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 font-semibold border-b">
+                                <th class="p-2.5">日期时间</th>
+                                <th class="p-2.5">类型</th>
+                                <th class="p-2.5">收款人：公司/店铺/名字</th>
+                                <th class="p-2.5">支付方式</th>
+                                <th class="p-2.5">分类</th>
+                                <th class="p-2.5">单据/发票号</th>
+                                <th class="p-2.5">内容原因</th>
+                                <th class="p-2.5">金额 (RM)</th>
+                                <th class="p-2.5">报销状态 (PV)</th>
+                                <th class="p-2.5 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100" id="pettyTableGroup_${ym}"></tbody>
+                    </table>
+                </div>
+            `;
+            container.appendChild(details);
+
+            const tbodyGroup = document.getElementById(`pettyTableGroup_${ym}`);
+            records.forEach(item => {
+                const isOut = item.trans_type === 'OUT';
+                const typeBadge = isOut 
+                    ? `<span class="px-2 py-0.5 rounded font-bold text-[11px] bg-rose-100 text-rose-800">🔴 垫付 OUT</span>` 
+                    : `<span class="px-2 py-0.5 rounded font-bold text-[11px] bg-emerald-100 text-emerald-800">🟢 收现 IN</span>`;
+
+                let claimHtml = '';
+                if (item.is_claimed) {
+                    claimHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">✅ Claimed (${escapeHtml(item.pv_number)})</span>`;
+                } else {
+                    claimHtml = `<button onclick="openClaimModal('petty', ${item.id})" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-xs cursor-pointer">📌 书记 Claim</button>`;
+                }
+
+                tbodyGroup.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-mono text-slate-500 text-xs">${item.record_date} ${item.record_time}</td>
+                        <td class="p-2.5">${typeBadge}</td>
+                        <td class="p-2.5 font-bold text-indigo-900">${escapeHtml(item.shop_name || '-')}</td>
+                        <td class="p-2.5 font-semibold text-slate-700">[${escapeHtml(item.payment_method || 'CASH')}]</td>
+                        <td class="p-2.5 font-semibold text-slate-700">${escapeHtml(item.category)}</td>
+                        <td class="p-2.5 font-mono text-xs text-slate-600">${escapeHtml(item.receipt_no || '-')}</td>
+                        <td class="p-2.5 text-slate-900">${escapeHtml(item.description)}</td>
+                        <td class="p-2.5 font-black font-mono ${isOut ? 'text-rose-600' : 'text-emerald-700'} text-sm">
+                            ${isOut ? '-' : '+'} RM ${Number(item.amount).toFixed(2)}
+                        </td>
+                        <td class="p-2.5">${claimHtml}</td>
+                        <td class="p-2.5 text-right space-x-2">
+                            <button onclick="openEditPettyCashModal(${item.id})" class="text-indigo-600 hover:underline text-xs cursor-pointer">编辑</button>
+                            <button onclick="deletePettyCash(${item.id})" class="text-rose-500 hover:underline text-xs cursor-pointer">删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    function openEditPettyCashModal(id) {
+        const item = pettyCashList.find(p => p.id === id);
+        if(!item) return;
+        document.getElementById('editPettyId').value = item.id;
+        document.getElementById('editPettyTransType').value = item.trans_type;
+        document.getElementById('editPettyShopName').value = item.shop_name || '';
+        document.getElementById('editPettyDate').value = item.record_date || '';
+        document.getElementById('editPettyAmount').value = item.amount;
+        document.getElementById('editPettyPayMethod').value = item.payment_method || 'CASH';
+        document.getElementById('editPettyCategory').value = item.category || '买料/工具';
+        document.getElementById('editPettyReceiptNo').value = item.receipt_no || '';
+        document.getElementById('editPettyDescription').value = item.description || '';
+        document.getElementById('editPettyCashModal').classList.remove('hidden');
+    }
+
+    function closeEditPettyCashModal() {
+        document.getElementById('editPettyCashModal').classList.add('hidden');
+    }
+
+    async function submitEditPettyCash() {
+        const id = document.getElementById('editPettyId').value;
+        const trans_type = document.getElementById('editPettyTransType').value;
+        const shop_name = document.getElementById('editPettyShopName').value.trim();
+        const record_date = document.getElementById('editPettyDate').value;
+        const amount = parseFloat(document.getElementById('editPettyAmount').value);
+        const payment_method = document.getElementById('editPettyPayMethod').value;
+        const category = document.getElementById('editPettyCategory').value;
+        const receipt_no = document.getElementById('editPettyReceiptNo').value.trim();
+        const description = document.getElementById('editPettyDescription').value.trim();
+
+        if (!shop_name || isNaN(amount) || amount <= 0 || !description) return alert("请完整填写修改信息！");
+
+        await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
+            method: "PATCH",
+            headers: reqHeaders,
+            body: JSON.stringify({ trans_type, shop_name, record_date, amount, payment_method, category, receipt_no, description })
+        });
+
+        closeEditPettyCashModal();
+        await fetchPettyCash();
+        renderPettyCashTable();
+        alert("✅ 现金流水记录已成功修改！");
+    }
+
+    async function deletePettyCash(id) {
+        if (!confirm('确定删除该笔备用金流水？')) return;
+        await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+        await fetchPettyCash();
+        renderPettyCashTable();
+    }
+
+    function populateSiteSearchDropdown() {
+        const select = document.getElementById('searchSiteSelect');
+        if(!select) return;
+        select.innerHTML = '<option value="">-- 请选择工地 --</option>';
+        sitesList.forEach(s => {
+            select.innerHTML += `<option value="${escapeHtml(s.site_name)}">${escapeHtml(s.site_name)}</option>`;
+        });
+    }
+
+    function executeSiteSearch() {
+        const siteName = document.getElementById('searchSiteSelect').value;
+        const searchMonth = document.getElementById('searchSiteMonth').value;
+        if (!siteName) return alert("请先选择要搜索的工地名称！");
+
+        const matchedAtt = attendanceList.filter(att => {
+            if (att.site_name !== siteName) return false;
+            if (searchMonth && !(att.work_date || '').startsWith(searchMonth)) return false;
+            return true;
+        });
+        
+        let totalWage = 0;
+        let totalHours = 0;
+
+        matchedAtt.forEach(att => {
+            totalWage += Number(att.daily_wage || 0);
+            totalHours += Number(att.total_hours || 0);
+        });
+
+        document.getElementById('statSiteTotalWage').innerText = totalWage.toFixed(2);
+        document.getElementById('statSiteTotalHours').innerText = totalHours.toFixed(1);
+        document.getElementById('statSiteRecordCount').innerText = matchedAtt.length;
+        document.getElementById('siteSearchStats').classList.remove('hidden');
+
+        const tbody = document.getElementById('siteSearchTableBody');
+        tbody.innerHTML = '';
+
+        if (matchedAtt.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">该工地在所选年月暂无出勤工作记录</td></tr>`;
+            return;
+        }
+
+        matchedAtt.forEach(att => {
+            const worker = workersList.find(w => w.id === att.worker_id) || {};
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-mono text-slate-600">${att.work_date}</td>
+                    <td class="p-2.5 font-bold text-slate-900">${escapeHtml(worker.name || '未知工人')}</td>
+                    <td class="p-2.5">${getWorkerTypeBadge(worker.worker_type)}</td>
+                    <td class="p-2.5 font-bold font-mono text-indigo-700">${Number(att.total_hours).toFixed(1)} h</td>
+                    <td class="p-2.5 font-bold font-mono text-slate-800">RM ${Number(att.daily_wage).toFixed(2)}</td>
+                    <td class="p-2.5 text-slate-500">${escapeHtml(att.note || '-')}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function openClaimModal(targetType, id) {
+        document.getElementById('claimTargetType').value = targetType;
+        document.getElementById('claimTargetId').value = id;
+        document.getElementById('claimPvInput').value = '';
+        document.getElementById('claimPvModal').classList.remove('hidden');
+        document.getElementById('claimPvInput').focus();
+    }
+
+    function closeClaimPvModal() {
+        document.getElementById('claimPvModal').classList.add('hidden');
+    }
+
+    async function submitClaimPv() {
+        const targetType = document.getElementById('claimTargetType').value;
+        const id = document.getElementById('claimTargetId').value;
+        const pv = document.getElementById('claimPvInput').value.trim();
+
+        if (!pv) return alert("必须填写公司 PV 凭证编号，才能完成 Claimed 标记！");
+
+        if (targetType === 'subcon') {
+            await fetch(`${SUPABASE_URL}/subcon_payments?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ is_claimed: true, claimed_pv: pv })
+            });
+            await fetchSubconData();
+            renderSubconDashboard();
+        } else {
+            await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ is_claimed: true, pv_number: pv, claimed_at: new Date().toISOString() })
+            });
+            await fetchPettyCash();
+            renderPettyCashTable();
+        }
+
+        closeClaimPvModal();
+        alert(`✅ 报销登记成功！已绑定凭证编号: ${pv}`);
+    }
+
+    function escapeHtml(text) {
+        return (text || '').replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[m]));
+    }
+</script>
+
+</body>
+</html>
