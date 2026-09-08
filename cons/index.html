@@ -33,6 +33,9 @@
 </head>
 <body class="bg-slate-100 text-slate-800 p-2 sm:p-5 md:p-8">
 
+<!-- 全局 Toast 撤回提示框 -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[999999] space-y-2 pointer-events-none"></div>
+
 <div id="minimalAuthOverlay" class="fixed inset-0 bg-[#0f172a] z-[999999] flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6 space-y-4 text-left">
         <div>
@@ -333,27 +336,42 @@
             </div>
         </div>
 
-        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
-            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">➕ 建立 Subcon 分包工程合同</h2>
-            <form onsubmit="handleNewSubconSubmit(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">签约日期</label>
-                    <input type="date" id="subContractDate" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
+            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">➕ 建立 Subcon 分包工程合同 (支持多项 Portion 明细)</h2>
+            <form onsubmit="handleNewSubconSubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">签约日期</label>
+                        <input type="date" id="subContractDate" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">工程项目名称</label>
+                        <input type="text" id="subProjectName" required placeholder="如: Kamunting 厂房铁工" class="w-full px-3 py-2 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Subcon 名字 / 公司</label>
+                        <input type="text" id="subSubconName" required placeholder="如: xx Ent / Name" class="w-full px-3 py-2 border rounded-xl text-sm">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">工程项目名称</label>
-                    <input type="text" id="subProjectName" required placeholder="如: Kamunting 厂房铁工" class="w-full px-3 py-2 border rounded-xl text-sm">
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-700">📌 合同分包 Portion 明细 (如 Gate 5500, Railing 500)：</label>
+                        <button type="button" onclick="addSubconPortionRow()" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs cursor-pointer">
+                            + 添加明细项
+                        </button>
+                    </div>
+                    <div id="subconPortionsContainer" class="space-y-2">
+                        <!-- 动态生成行 -->
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t text-sm font-bold text-slate-800">
+                        <span>原始合同计算总额：</span>
+                        <span class="text-indigo-700 text-base font-black">RM <span id="subconCalculatedBaseTotal">0.00</span></span>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Subcon 名字 / 公司</label>
-                    <input type="text" id="subSubconName" required placeholder="如: xx Ent / Name" class="w-full px-3 py-2 border rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">原始合同总额 (RM)</label>
-                    <input type="number" step="0.01" id="subBaseAmount" required placeholder="0.00" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
-                </div>
-                <div class="flex items-end">
-                    <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow cursor-pointer">
+
+                <div class="flex justify-end">
+                    <button type="submit" class="w-full sm:w-56 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow cursor-pointer">
                         建立分包合同
                     </button>
                 </div>
@@ -760,8 +778,8 @@
 </div>
 
 <div id="editSubconContractModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改分包工程合同</h3>
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto">
+        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改分包工程合同与 Portion 明细</h3>
         <input type="hidden" id="editSubContractId">
         <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">签约日期</label>
@@ -775,10 +793,21 @@
             <label class="block text-xs font-semibold text-slate-600 mb-1">Subcon 名字</label>
             <input type="text" id="editSubSubconName" class="w-full px-3 py-2 border rounded-xl text-sm">
         </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">原合同承包总额 (RM)</label>
-            <input type="number" step="0.01" id="editSubBaseAmount" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700">📌 Portion 明细项：</label>
+                <button type="button" onclick="addEditSubconPortionRow()" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs cursor-pointer">
+                    + 添加明细项
+                </button>
+            </div>
+            <div id="editSubconPortionsContainer" class="space-y-2"></div>
+            <div class="flex justify-between items-center pt-2 border-t text-sm font-bold text-slate-800">
+                <span>修改后原合同总额：</span>
+                <span class="text-indigo-700 text-base font-black">RM <span id="editSubCalculatedBaseTotal">0.00</span></span>
+            </div>
         </div>
+
         <div class="flex justify-end gap-2 pt-2 border-t">
             <button type="button" onclick="closeEditSubconContractModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
             <button type="button" onclick="submitEditSubconContract()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
@@ -996,6 +1025,9 @@
     let subconVos = [];
     let pettyCashList = [];
 
+    // 软删除撤回栈 (用于 Undo 操作)
+    let undoDeletedStack = [];
+
     let isManagementUnlocked = false;
 
     function initSystemDates() {
@@ -1019,6 +1051,11 @@
         const min = String(now.getMinutes()).padStart(2, '0');
         document.getElementById('payDateTime').value = `${todayStr}T${h}:${min}`;
         document.getElementById('pettyTime').value = `${h}:${min}`;
+
+        // 初始化默认添加一行分包 Portion
+        if(document.getElementById('subconPortionsContainer') && document.getElementById('subconPortionsContainer').children.length === 0) {
+            addSubconPortionRow();
+        }
     }
 
     window.addEventListener('load', () => {
@@ -1940,6 +1977,51 @@
         renderDailyDetailTable();
     }
 
+    // --- Subcon Portion 动态明细管理 ---
+    function addSubconPortionRow(desc = '', amt = '') {
+        const container = document.getElementById('subconPortionsContainer');
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2 portion-row";
+        div.innerHTML = `
+            <input type="text" placeholder="描述，如: Gate" value="${escapeHtml(desc)}" class="flex-1 px-3 py-1.5 border rounded-xl text-xs portion-desc bg-white" oninput="calcSubconBaseTotal()">
+            <input type="number" step="0.01" placeholder="金额 RM" value="${amt}" class="w-32 px-3 py-1.5 border rounded-xl text-xs font-bold text-indigo-700 portion-amt bg-white" oninput="calcSubconBaseTotal()">
+            <button type="button" onclick="this.parentElement.remove(); calcSubconBaseTotal();" class="px-2.5 py-1.5 bg-rose-100 text-rose-600 rounded-xl text-xs font-bold cursor-pointer">✕</button>
+        `;
+        container.appendChild(div);
+        calcSubconBaseTotal();
+    }
+
+    function calcSubconBaseTotal() {
+        let total = 0;
+        document.querySelectorAll('#subconPortionsContainer .portion-row').forEach(row => {
+            const val = parseFloat(row.querySelector('.portion-amt').value) || 0;
+            total += val;
+        });
+        document.getElementById('subconCalculatedBaseTotal').innerText = total.toFixed(2);
+    }
+
+    function addEditSubconPortionRow(desc = '', amt = '') {
+        const container = document.getElementById('editSubconPortionsContainer');
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2 edit-portion-row";
+        div.innerHTML = `
+            <input type="text" placeholder="描述，如: Gate" value="${escapeHtml(desc)}" class="flex-1 px-3 py-1.5 border rounded-xl text-xs edit-portion-desc bg-white" oninput="calcEditSubconBaseTotal()">
+            <input type="number" step="0.01" placeholder="金额 RM" value="${amt}" class="w-32 px-3 py-1.5 border rounded-xl text-xs font-bold text-indigo-700 edit-portion-amt bg-white" oninput="calcEditSubconBaseTotal()">
+            <button type="button" onclick="this.parentElement.remove(); calcEditSubconBaseTotal();" class="px-2.5 py-1.5 bg-rose-100 text-rose-600 rounded-xl text-xs font-bold cursor-pointer">✕</button>
+        `;
+        container.appendChild(div);
+        calcEditSubconBaseTotal();
+    }
+
+    function calcEditSubconBaseTotal() {
+        let total = 0;
+        document.querySelectorAll('#editSubconPortionsContainer .edit-portion-row').forEach(row => {
+            const val = parseFloat(row.querySelector('.edit-portion-amt').value) || 0;
+            total += val;
+        });
+        document.getElementById('editSubCalculatedBaseTotal').innerText = total.toFixed(2);
+    }
+
     async function fetchSubconData() {
         try {
             const [cRes, pRes, vRes] = await Promise.all([
@@ -1968,16 +2050,30 @@
         const contract_date = document.getElementById('subContractDate').value;
         const project_name = document.getElementById('subProjectName').value.trim();
         const subcon_name = document.getElementById('subSubconName').value.trim();
-        const base_amount = parseFloat(document.getElementById('subBaseAmount').value);
+        
+        let portions = [];
+        let base_amount = 0;
+        document.querySelectorAll('#subconPortionsContainer .portion-row').forEach(row => {
+            const desc = row.querySelector('.portion-desc').value.trim();
+            const amt = parseFloat(row.querySelector('.portion-amt').value) || 0;
+            if(desc || amt > 0) {
+                portions.push({ description: desc, amount: amt });
+                base_amount += amt;
+            }
+        });
+
+        if (portions.length === 0) return alert("请至少添加一项合同 Portion 明细！");
 
         await fetch(`${SUPABASE_URL}/subcon_contracts`, {
             method: "POST",
             headers: reqHeaders,
-            body: JSON.stringify([{ contract_date, project_name, subcon_name, base_amount, vo_amount: 0 }])
+            body: JSON.stringify([{ contract_date, project_name, subcon_name, base_amount, portions: JSON.stringify(portions), vo_amount: 0 }])
         });
+
         document.getElementById('subProjectName').value = '';
         document.getElementById('subSubconName').value = '';
-        document.getElementById('subBaseAmount').value = '';
+        document.getElementById('subconPortionsContainer').innerHTML = '';
+        addSubconPortionRow();
         await fetchSubconData();
         renderSubconDashboard();
         alert(`分包合同 [${project_name}] 建立成功！`);
@@ -2045,6 +2141,35 @@
 
             const balance = finalContractTotal - paidTotal;
 
+            // 解析 Portion 明细
+            let portionsArr = [];
+            try {
+                if (c.portions) portionsArr = JSON.parse(c.portions);
+            } catch(e) {}
+
+            let portionsHtml = '';
+            if (portionsArr.length > 0) {
+                portionsHtml = `<div class="flex flex-wrap gap-1.5 pt-1 pb-2">`;
+                portionsArr.forEach(pt => {
+                    portionsHtml += `<span class="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-lg text-xs font-semibold">${escapeHtml(pt.description)}: <strong class="font-mono">RM ${Number(pt.amount).toFixed(2)}</strong></span>`;
+                });
+                portionsHtml += `</div>`;
+            }
+
+            // 渲染 VO 描述修复
+            let voListHtml = '';
+            if (currentVos.length > 0) {
+                voListHtml = `<div class="space-y-1 bg-amber-50/50 p-2 rounded-xl border border-amber-200 text-xs">
+                    <div class="font-bold text-amber-900">📌 追加 VO 变更明细：</div>`;
+                currentVos.forEach(v => {
+                    voListHtml += `<div class="flex justify-between items-center text-slate-700">
+                        <span>${escapeHtml(v.vo_date)} - <strong>${escapeHtml(v.vo_description)}</strong></span>
+                        <span class="font-black text-indigo-700 font-mono">+ RM ${Number(v.vo_amount).toFixed(2)}</span>
+                    </div>`;
+                });
+                voListHtml += `</div>`;
+            }
+
             let paymentRowsHtml = '';
             if (currentPayments.length === 0) {
                 paymentRowsHtml = '<div class="text-xs text-slate-400 py-2">尚未有领款记录</div>';
@@ -2106,6 +2231,9 @@
                     </div>
                 </div>
 
+                ${portionsHtml}
+                ${voListHtml}
+
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs py-2 bg-slate-50 rounded-xl">
                     <div><div class="text-slate-400">原合同金额</div><div class="font-bold font-mono text-sm">RM ${Number(c.base_amount).toFixed(2)}</div></div>
                     <div><div class="text-slate-400">VO 追加</div><div class="font-bold text-indigo-600 font-mono text-sm">+ RM ${totalVO.toFixed(2)}</div></div>
@@ -2142,7 +2270,18 @@
         document.getElementById('editSubContractDate').value = c.contract_date || '';
         document.getElementById('editSubProjectName').value = c.project_name;
         document.getElementById('editSubSubconName').value = c.subcon_name;
-        document.getElementById('editSubBaseAmount').value = c.base_amount;
+
+        const container = document.getElementById('editSubconPortionsContainer');
+        container.innerHTML = '';
+        let portionsArr = [];
+        try { if(c.portions) portionsArr = JSON.parse(c.portions); } catch(e){}
+
+        if (portionsArr.length > 0) {
+            portionsArr.forEach(pt => addEditSubconPortionRow(pt.description, pt.amount));
+        } else {
+            addEditSubconPortionRow('原合同总额', c.base_amount);
+        }
+
         document.getElementById('editSubconContractModal').classList.remove('hidden');
     }
 
@@ -2155,19 +2294,29 @@
         const contract_date = document.getElementById('editSubContractDate').value;
         const project_name = document.getElementById('editSubProjectName').value.trim();
         const subcon_name = document.getElementById('editSubSubconName').value.trim();
-        const base_amount = parseFloat(document.getElementById('editSubBaseAmount').value);
 
-        if (!project_name || isNaN(base_amount)) return alert("请填写完整！");
+        let portions = [];
+        let base_amount = 0;
+        document.querySelectorAll('#editSubconPortionsContainer .edit-portion-row').forEach(row => {
+            const desc = row.querySelector('.edit-portion-desc').value.trim();
+            const amt = parseFloat(row.querySelector('.edit-portion-amt').value) || 0;
+            if(desc || amt > 0) {
+                portions.push({ description: desc, amount: amt });
+                base_amount += amt;
+            }
+        });
+
+        if (!project_name || portions.length === 0) return alert("请填写完整项目名并至少保留一项 Portion 明细！");
 
         await fetch(`${SUPABASE_URL}/subcon_contracts?id=eq.${id}`, {
             method: "PATCH",
             headers: reqHeaders,
-            body: JSON.stringify({ contract_date, project_name, subcon_name, base_amount })
+            body: JSON.stringify({ contract_date, project_name, subcon_name, base_amount, portions: JSON.stringify(portions) })
         });
         closeEditSubconContractModal();
         await fetchSubconData();
         renderSubconDashboard();
-        alert("分包工程合同已修改！");
+        alert("分包工程合同已修改更新！");
     }
 
     async function deleteSubconPayment(id) {
@@ -2362,7 +2511,7 @@
                         <td class="p-2.5">${claimHtml}</td>
                         <td class="p-2.5 text-right space-x-2">
                             <button onclick="openEditPettyCashModal(${item.id})" class="text-indigo-600 hover:underline text-xs cursor-pointer">编辑</button>
-                            <button onclick="deletePettyCash(${item.id})" class="text-rose-500 hover:underline text-xs cursor-pointer">删除</button>
+                            <button onclick="deletePettyCashSoft(${item.id})" class="text-rose-500 hover:underline text-xs cursor-pointer">删除</button>
                         </td>
                     </tr>
                 `;
@@ -2414,11 +2563,75 @@
         alert("✅ 现金流水记录已成功修改！");
     }
 
+    // --- 支出明细流水：软删除与一键撤回 (Undo) 机制 ---
+    async function deletePettyCashSoft(id) {
+        const item = pettyCashList.find(p => p.id === id);
+        if(!item) return;
+        if(!confirm(`确定要删除 [${item.shop_name} - ${escapeHtml(item.description)}] 吗？删除后可在短暂时间内一键撤回。`)) return;
+
+        // 执行后端删除
+        const res = await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+        if(res.ok) {
+            // 推入撤回栈
+            const undoObj = { ...item };
+            undoDeletedStack.push(undoObj);
+            showUndoToast(undoObj);
+
+            await fetchPettyCash();
+            renderPettyCashTable();
+        }
+    }
+
+    function showUndoToast(item) {
+        const container = document.getElementById('toastContainer');
+        const toastId = 'toast_' + Date.now();
+        const div = document.createElement('div');
+        div.id = toastId;
+        div.className = "pointer-events-auto bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center justify-between gap-4 transition animate-bounce";
+        div.innerHTML = `
+            <span>🗑️ 已删除流水：<strong>${escapeHtml(item.shop_name)} (RM ${Number(item.amount).toFixed(2)})</strong></span>
+            <button onclick="undoDeletePettyCash(${item.id}, '${toastId}')" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 font-bold rounded-lg cursor-pointer text-slate-900">
+                ↩️ 撤回 (Undo)
+            </button>
+        `;
+        container.appendChild(div);
+
+        // 8秒后自动移除 Toast 提示
+        setTimeout(() => {
+            const el = document.getElementById(toastId);
+            if(el) el.remove();
+        }, 8000);
+    }
+
+    async function undoDeletePettyCash(id, toastId) {
+        const index = undoDeletedStack.findIndex(x => x.id === id);
+        if(index === -1) return alert("撤回超时或已失效！");
+        const item = undoDeletedStack[index];
+
+        // 重新写回数据库 (不带原 id 或带原 id 尝试恢复)
+        const restoreData = { ...item };
+        delete restoreData.id; // 防止主键冲突，重新自增写入
+
+        const res = await fetch(`${SUPABASE_URL}/marco_petty_cash`, {
+            method: "POST",
+            headers: reqHeaders,
+            body: JSON.stringify([restoreData])
+        });
+
+        if(res.ok) {
+            undoDeletedStack.splice(index, 1);
+            const el = document.getElementById(toastId);
+            if(el) el.remove();
+            await fetchPettyCash();
+            renderPettyCashTable();
+            alert("✅ 已成功撤回删除，流水记录已恢复！");
+        } else {
+            alert("撤回恢复失败，请重试。");
+        }
+    }
+
     async function deletePettyCash(id) {
-        if (!confirm('确定删除该笔备用金流水？')) return;
-        await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
-        await fetchPettyCash();
-        renderPettyCashTable();
+        await deletePettyCashSoft(id);
     }
 
     function populateSiteSearchDropdown() {
