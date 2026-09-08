@@ -337,7 +337,7 @@
         </div>
 
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
-            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">➕ 建立 Subcon 分包工程合同 (支持多项 Portion 明细)</h2>
+            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">➕ 建立 Subcon 分包工程合同 (支持多项 Portion 明细与折扣)</h2>
             <form onsubmit="handleNewSubconSubmit(event)" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
@@ -364,9 +364,17 @@
                     <div id="subconPortionsContainer" class="space-y-2">
                         <!-- 动态生成行 -->
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t text-sm font-bold text-slate-800">
-                        <span>原始合同计算总额：</span>
-                        <span class="text-indigo-700 text-base font-black">RM <span id="subconCalculatedBaseTotal">0.00</span></span>
+
+                    <!-- 折扣价格输入区 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t">
+                        <div>
+                            <label class="block text-xs font-semibold text-rose-600 mb-1">🏷️ SUBCON 合同扣除折扣 (RM)</label>
+                            <input type="number" step="0.01" id="subconDiscount" value="0.00" oninput="calcSubconBaseTotal()" placeholder="0.00" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-rose-600 bg-white">
+                        </div>
+                        <div class="flex flex-col justify-end text-right">
+                            <span class="text-xs text-slate-500">最终合同净额 (原总额 - 折扣)：</span>
+                            <span class="text-indigo-700 text-lg font-black">RM <span id="subconCalculatedBaseTotal">0.00</span></span>
+                        </div>
                     </div>
                 </div>
 
@@ -379,7 +387,7 @@
         </div>
 
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
-            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">💳 Subcon 先拿钱 / 进度款支出登记 (支持输入折扣/扣减)</h2>
+            <h2 class="text-sm sm:text-base font-bold text-slate-800 border-b pb-2.5">💳 Subcon 先拿钱 / 进度款支出登记</h2>
             <form onsubmit="handleSubconPaymentSubmit(event)" class="space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
@@ -391,12 +399,12 @@
                         <input type="datetime-local" id="payDateTime" required class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">实际支付/出账金额 (RM)</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">支付金额 (RM)</label>
                         <input type="number" step="0.01" id="payAmount" required placeholder="0.00" class="w-full px-3 py-2 border rounded-xl text-sm font-black text-rose-600">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">出账性质与经手人</label>
                         <div class="flex gap-2">
@@ -404,38 +412,33 @@
                                 <option value="私人先给">私人先垫付</option>
                                 <option value="公司转账">公司转账</option>
                             </select>
-                            <input type="text" id="payPayerName" value="Marco" placeholder="垫付人" class="w-1/2 px-2 py-2 border rounded-xl text-xs bg-white font-semibold">
+                            <input type="text" id="payPayerName" value="Marco" placeholder="垫付人名字" class="w-1/2 px-2 py-2 border rounded-xl text-xs bg-white font-semibold">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">具体付款方式</label>
                         <select id="payMethod" class="w-full px-3 py-2 border rounded-xl text-sm bg-white font-semibold">
                             <option value="CASH">💵 现金 (CASH)</option>
-                            <option value="TNG">📱 Touch 'n Go</option>
+                            <option value="TNG">📱 Touch 'n Go eWallet</option>
                             <option value="Shopee Pay">🟠 Shopee Pay</option>
-                            <option value="HLB">🏦 Hong Leong Bank</option>
+                            <option value="HLB">🏦 Hong Leong Bank (HLB)</option>
                             <option value="HSBC">🏦 HSBC Bank</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">🏷️ 折扣 / 扣减金额 (RM)</label>
-                        <input type="number" step="0.01" id="payDiscount" value="0" placeholder="尾款折扣，如200" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-amber-700 bg-white">
-                        <span class="text-[10px] text-slate-400">核销规模 = 实付 + 折扣</span>
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="text-xs font-semibold text-slate-600">备注说明</label>
                             <button type="button" onclick="setSubconNoteAdvance()" class="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded cursor-pointer">
-                                + 快捷 "Advance"
+                                + 快捷填入 "Advance"
                             </button>
                         </div>
-                        <input type="text" id="payNote" placeholder="例如：尾款结算、买铁网等" class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
+                        <input type="text" id="payNote" placeholder="例如：Advance、买铁网尾款等" class="w-full px-3 py-2 border rounded-xl text-sm bg-white">
                     </div>
                 </div>
 
                 <div class="flex justify-end pt-1">
                     <button type="submit" class="w-full sm:w-56 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm shadow cursor-pointer">
-                        💸 确认出账并核销扣减
+                        💸 确认出账并同步扣减
                     </button>
                 </div>
             </form>
@@ -691,30 +694,6 @@
 
 </div>
 
-<!-- VO 编辑弹窗 -->
-<div id="editVoModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改追加 VO 变更工程款</h3>
-        <input type="hidden" id="editVoId">
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">追加日期</label>
-            <input type="date" id="editVoDate" class="w-full px-3 py-2 border rounded-xl text-sm">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">VO 项目内容描述</label>
-            <input type="text" id="editVoDesc" class="w-full px-3 py-2 border rounded-xl text-sm">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">追加金额 (RM)</label>
-            <input type="number" step="0.01" id="editVoAmt" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-indigo-700">
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t">
-            <button type="button" onclick="closeEditVoModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitEditVoRecord()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存修改</button>
-        </div>
-    </div>
-</div>
-
 <div id="printArea" class="hidden">
     <div style="font-family:sans-serif; color:#000; font-size:8px; line-height:1.15; max-height:190mm; overflow:hidden;">
         <div style="text-align:center; border-bottom:1.5px solid #000; padding-bottom:3px; margin-bottom:4px;">
@@ -808,7 +787,7 @@
 
 <div id="editSubconContractModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改分包工程合同与 Portion 明细</h3>
+        <h3 class="text-base font-bold text-slate-900 border-b pb-2">✏️ 修改分包工程合同、Portion 明细与折扣</h3>
         <input type="hidden" id="editSubContractId">
         <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">签约日期</label>
@@ -831,9 +810,16 @@
                 </button>
             </div>
             <div id="editSubconPortionsContainer" class="space-y-2"></div>
-            <div class="flex justify-between items-center pt-2 border-t text-sm font-bold text-slate-800">
-                <span>修改后原合同总额：</span>
-                <span class="text-indigo-700 text-base font-black">RM <span id="editSubCalculatedBaseTotal">0.00</span></span>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t">
+                <div>
+                    <label class="block text-xs font-semibold text-rose-600 mb-1">🏷️ 修改折星/折扣金额 (RM)</label>
+                    <input type="number" step="0.01" id="editSubconDiscount" value="0.00" oninput="calcEditSubconBaseTotal()" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-rose-600 bg-white">
+                </div>
+                <div class="flex flex-col justify-end text-right">
+                    <span class="text-xs text-slate-500">修改后最终合同净额：</span>
+                    <span class="text-indigo-700 text-base font-black">RM <span id="editSubCalculatedBaseTotal">0.00</span></span>
+                </div>
             </div>
         </div>
 
@@ -2011,7 +1997,7 @@
         renderDailyDetailTable();
     }
 
-    // --- Subcon Portion 动态明细管理 ---
+    // --- Subcon Portion 动态明细与折扣管理 ---
     function addSubconPortionRow(desc = '', amt = '') {
         const container = document.getElementById('subconPortionsContainer');
         const div = document.createElement('div');
@@ -2031,7 +2017,9 @@
             const val = parseFloat(row.querySelector('.portion-amt').value) || 0;
             total += val;
         });
-        document.getElementById('subconCalculatedBaseTotal').innerText = total.toFixed(2);
+        const discount = parseFloat(document.getElementById('subconDiscount').value) || 0;
+        const finalNet = total - discount;
+        document.getElementById('subconCalculatedBaseTotal').innerText = finalNet.toFixed(2);
     }
 
     function addEditSubconPortionRow(desc = '', amt = '') {
@@ -2053,7 +2041,9 @@
             const val = parseFloat(row.querySelector('.edit-portion-amt').value) || 0;
             total += val;
         });
-        document.getElementById('editSubCalculatedBaseTotal').innerText = total.toFixed(2);
+        const discount = parseFloat(document.getElementById('editSubconDiscount').value) || 0;
+        const finalNet = total - discount;
+        document.getElementById('editSubCalculatedBaseTotal').innerText = finalNet.toFixed(2);
     }
 
     async function fetchSubconData() {
@@ -2084,6 +2074,7 @@
         const contract_date = document.getElementById('subContractDate').value;
         const project_name = document.getElementById('subProjectName').value.trim();
         const subcon_name = document.getElementById('subSubconName').value.trim();
+        const discount_amount = parseFloat(document.getElementById('subconDiscount').value) || 0;
         
         let portions = [];
         let base_amount = 0;
@@ -2101,11 +2092,12 @@
         await fetch(`${SUPABASE_URL}/subcon_contracts`, {
             method: "POST",
             headers: reqHeaders,
-            body: JSON.stringify([{ contract_date, project_name, subcon_name, base_amount, portions: JSON.stringify(portions), vo_amount: 0 }])
+            body: JSON.stringify([{ contract_date, project_name, subcon_name, base_amount, discount_amount, portions: JSON.stringify(portions), vo_amount: 0 }])
         });
 
         document.getElementById('subProjectName').value = '';
         document.getElementById('subSubconName').value = '';
+        document.getElementById('subconDiscount').value = '0.00';
         document.getElementById('subconPortionsContainer').innerHTML = '';
         addSubconPortionRow();
         await fetchSubconData();
@@ -2117,41 +2109,24 @@
         e.preventDefault();
         const contract_id = parseInt(document.getElementById('payContractSelect').value);
         const payment_time = document.getElementById('payDateTime').value;
-        const amount = parseFloat(document.getElementById('payAmount').value); // 实际出账
-        const discount_amount = parseFloat(document.getElementById('payDiscount').value) || 0; // 折扣金额
+        const amount = parseFloat(document.getElementById('payAmount').value);
         const paid_by = document.getElementById('payPaidBy').value;
         const payer_name = document.getElementById('payPayerName').value.trim() || 'Marco';
         const payment_method = document.getElementById('payMethod').value;
         const note = document.getElementById('payNote').value.trim();
 
-        if (!contract_id || isNaN(amount) || amount < 0) return alert('请选择项目并填写有效支付金额！');
-
-        // 总核销规模 = 实际出账 + 折扣金额
-        const total_cleared = amount + discount_amount;
+        if (!contract_id || isNaN(amount) || amount <= 0) return alert('请选择项目并填写有效金额！');
 
         await fetch(`${SUPABASE_URL}/subcon_payments`, {
             method: "POST",
             headers: reqHeaders,
-            body: JSON.stringify([{ 
-                contract_id, 
-                payment_time, 
-                amount: total_cleared, // 真正核销扣减尾款的金额（实付+折扣）
-                cash_paid: amount,     // 实际付出的钱
-                discount_amount: discount_amount, // 折扣金额
-                paid_by, 
-                payer_name, 
-                payment_method, 
-                note, 
-                is_claimed: false, 
-                claimed_pv: '' 
-            }])
+            body: JSON.stringify([{ contract_id, payment_time, amount, paid_by, payer_name, payment_method, note, is_claimed: false, claimed_pv: '' }])
         });
         document.getElementById('payAmount').value = '';
-        document.getElementById('payDiscount').value = '0';
         document.getElementById('payNote').value = '';
         await fetchSubconData();
         renderSubconDashboard();
-        alert(`Subcon 进度款与折扣核销已保存！(实付: RM ${amount.toFixed(2)} + 折扣: RM ${discount_amount.toFixed(2)})`);
+        alert('Subcon 领款记录已保存！');
     }
 
     function renderSubconDashboard() {
@@ -2165,12 +2140,12 @@
         let contractAllSum = 0;
 
         subconPayments.forEach(p => {
-            const cashAmt = Number(p.cash_paid !== undefined ? p.cash_paid : p.amount || 0);
+            const amt = Number(p.amount || 0);
             if (p.paid_by === '私人先给') {
-                privateSum += cashAmt;
-                if (!p.is_claimed) unclaimedSum += cashAmt;
+                privateSum += amt;
+                if (!p.is_claimed) unclaimedSum += amt;
             } else {
-                companySum += cashAmt;
+                companySum += amt;
             }
         });
 
@@ -2183,12 +2158,14 @@
             const currentVos = subconVos.filter(v => v.contract_id === c.id);
             currentVos.forEach(v => totalVO += Number(v.vo_amount || 0));
 
-            const finalContractTotal = Number(c.base_amount) + totalVO;
+            const discount = Number(c.discount_amount || 0);
+            const netBaseAmount = Number(c.base_amount) - discount;
+            const finalContractTotal = netBaseAmount + totalVO;
             contractAllSum += finalContractTotal;
 
             let paidTotal = 0;
             const currentPayments = subconPayments.filter(p => p.contract_id === c.id);
-            currentPayments.forEach(p => paidTotal += Number(p.amount || 0)); // 包含实付和折扣的核销总额
+            currentPayments.forEach(p => paidTotal += Number(p.amount || 0));
 
             const balance = finalContractTotal - paidTotal;
 
@@ -2207,22 +2184,17 @@
                 portionsHtml += `</div>`;
             }
 
-            // 渲染 VO 变更明细（支持修改与删除）
+            let discountHtml = discount > 0 ? `<span class="px-2 py-0.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs font-bold">🏷️ 折扣: - RM ${discount.toFixed(2)}</span>` : '';
+
+            // 渲染 VO 描述修复
             let voListHtml = '';
             if (currentVos.length > 0) {
-                voListHtml = `<div class="space-y-1 bg-amber-50/50 p-2.5 rounded-xl border border-amber-200 text-xs">
-                    <div class="font-bold text-amber-900 mb-1">📌 追加 VO 变更明细 (可随时修改或删除)：</div>`;
+                voListHtml = `<div class="space-y-1 bg-amber-50/50 p-2 rounded-xl border border-amber-200 text-xs">
+                    <div class="font-bold text-amber-900">📌 追加 VO 变更明细：</div>`;
                 currentVos.forEach(v => {
-                    voListHtml += `<div class="flex justify-between items-center text-slate-700 bg-white p-2 rounded-lg border border-amber-100">
-                        <div>
-                            <span class="font-mono text-slate-400">${escapeHtml(v.vo_date)}</span> - 
-                            <strong>${escapeHtml(v.vo_description)}</strong>
-                            <span class="font-black text-indigo-700 font-mono ml-2">+ RM ${Number(v.vo_amount).toFixed(2)}</span>
-                        </div>
-                        <div class="space-x-2">
-                            <button onclick="openEditVoModal(${v.id})" class="text-indigo-600 hover:underline font-bold cursor-pointer">修改</button>
-                            <button onclick="deleteVoRecord(${v.id})" class="text-rose-500 hover:underline font-bold cursor-pointer">删除</button>
-                        </div>
+                    voListHtml += `<div class="flex justify-between items-center text-slate-700">
+                        <span>${escapeHtml(v.vo_date)} - <strong>${escapeHtml(v.vo_description)}</strong></span>
+                        <span class="font-black text-indigo-700 font-mono">+ RM ${Number(v.vo_amount).toFixed(2)}</span>
                     </div>`;
                 });
                 voListHtml += `</div>`;
@@ -2230,13 +2202,11 @@
 
             let paymentRowsHtml = '';
             if (currentPayments.length === 0) {
-                paymentRowsHtml = '<div class="text-xs text-slate-400 py-2">尚未有领款或折扣记录</div>';
+                paymentRowsHtml = '<div class="text-xs text-slate-400 py-2">尚未有领款记录</div>';
             } else {
                 currentPayments.forEach(p => {
                     const isPrivate = p.paid_by === '私人先给';
                     const timeFormatted = p.payment_time.replace('T', ' ').slice(0, 16);
-                    const cashPaid = Number(p.cash_paid !== undefined ? p.cash_paid : p.amount || 0);
-                    const discount = Number(p.discount_amount || 0);
 
                     let claimHtml = '';
                     if (isPrivate) {
@@ -2247,8 +2217,6 @@
                         }
                     }
 
-                    let discountTag = discount > 0 ? `<span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded text-[10px]">含折扣: RM ${discount.toFixed(2)}</span>` : '';
-
                     paymentRowsHtml += `
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-100 text-xs gap-1.5">
                             <div>
@@ -2258,16 +2226,12 @@
                                         ${escapeHtml(p.paid_by)} (${escapeHtml(p.payer_name || 'Marco')})
                                     </span>
                                     <span class="font-bold text-slate-700">[${escapeHtml(p.payment_method)}]</span>
-                                    ${discountTag}
                                     ${claimHtml}
                                 </div>
                                 <div class="text-slate-500 mt-0.5">${p.note ? escapeHtml(p.note) : '无备注'}</div>
                             </div>
                             <div class="flex items-center gap-3 self-end sm:self-center">
-                                <div class="text-right">
-                                    <span class="font-mono font-bold text-rose-600 text-sm">实付: RM ${cashPaid.toFixed(2)}</span>
-                                    ${discount > 0 ? `<div class="text-[10px] text-slate-400 font-mono">核销总额: RM ${Number(p.amount).toFixed(2)}</div>` : ''}
-                                </div>
+                                <span class="font-mono font-bold text-rose-600 text-sm">- RM ${Number(p.amount).toFixed(2)}</span>
                                 <button onclick="deleteSubconPayment(${p.id})" class="text-slate-300 hover:text-rose-500 text-xs cursor-pointer">✕</button>
                             </div>
                         </div>
@@ -2297,18 +2261,21 @@
                     </div>
                 </div>
 
-                ${portionsHtml}
+                <div class="flex flex-wrap items-center gap-2">
+                    ${portionsHtml}
+                    ${discountHtml}
+                </div>
                 ${voListHtml}
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs py-2 bg-slate-50 rounded-xl">
-                    <div><div class="text-slate-400">原合同金额</div><div class="font-bold font-mono text-sm">RM ${Number(c.base_amount).toFixed(2)}</div></div>
+                    <div><div class="text-slate-400">折后合同净额</div><div class="font-bold font-mono text-sm">RM ${netBaseAmount.toFixed(2)}</div></div>
                     <div><div class="text-slate-400">VO 追加</div><div class="font-bold text-indigo-600 font-mono text-sm">+ RM ${totalVO.toFixed(2)}</div></div>
-                    <div><div class="text-slate-400">已付/已核销总额</div><div class="font-bold text-rose-600 font-mono text-sm">- RM ${paidTotal.toFixed(2)}</div></div>
+                    <div><div class="text-slate-400">已付进度款</div><div class="font-bold text-rose-600 font-mono text-sm">- RM ${paidTotal.toFixed(2)}</div></div>
                     <div><div class="text-slate-400 font-semibold">剩余尾款</div><div class="font-black ${balance >= 0 ? 'text-emerald-700' : 'text-rose-700'} font-mono text-sm">RM ${balance.toFixed(2)}</div></div>
                 </div>
 
                 <div class="space-y-1 pt-1">
-                    <span class="text-xs font-bold text-slate-700">支出明细流水 (含折扣核销)：</span>
+                    <span class="text-xs font-bold text-slate-700">支出明细流水：</span>
                     <div class="max-h-56 overflow-y-auto pr-1">${paymentRowsHtml}</div>
                 </div>
             `;
@@ -2336,6 +2303,7 @@
         document.getElementById('editSubContractDate').value = c.contract_date || '';
         document.getElementById('editSubProjectName').value = c.project_name;
         document.getElementById('editSubSubconName').value = c.subcon_name;
+        document.getElementById('editSubconDiscount').value = c.discount_amount || 0;
 
         const container = document.getElementById('editSubconPortionsContainer');
         container.innerHTML = '';
@@ -2360,6 +2328,7 @@
         const contract_date = document.getElementById('editSubContractDate').value;
         const project_name = document.getElementById('editSubProjectName').value.trim();
         const subcon_name = document.getElementById('editSubSubconName').value.trim();
+        const discount_amount = parseFloat(document.getElementById('editSubconDiscount').value) || 0;
 
         let portions = [];
         let base_amount = 0;
@@ -2377,12 +2346,12 @@
         await fetch(`${SUPABASE_URL}/subcon_contracts?id=eq.${id}`, {
             method: "PATCH",
             headers: reqHeaders,
-            body: JSON.stringify({ contract_date, project_name, subcon_name, base_amount, portions: JSON.stringify(portions) })
+            body: JSON.stringify({ contract_date, project_name, subcon_name, base_amount, discount_amount, portions: JSON.stringify(portions) })
         });
         closeEditSubconContractModal();
         await fetchSubconData();
         renderSubconDashboard();
-        alert("分包工程合同已修改更新！");
+        alert("分包工程合同与折扣已修改更新！");
     }
 
     async function deleteSubconPayment(id) {
@@ -2418,51 +2387,6 @@
         closeVoModal();
         await fetchSubconData();
         renderSubconDashboard();
-    }
-
-    // VO 修改与删除操作
-    function openEditVoModal(voId) {
-        const v = subconVos.find(item => item.id === voId);
-        if(!v) return;
-        document.getElementById('editVoId').value = v.id;
-        document.getElementById('editVoDate').value = v.vo_date || '';
-        document.getElementById('editVoDesc').value = v.vo_description || '';
-        document.getElementById('editVoAmt').value = v.vo_amount || 0;
-        document.getElementById('editVoModal').classList.remove('hidden');
-    }
-
-    function closeEditVoModal() {
-        document.getElementById('editVoModal').classList.add('hidden');
-    }
-
-    async function submitEditVoRecord() {
-        const id = document.getElementById('editVoId').value;
-        const vo_date = document.getElementById('editVoDate').value;
-        const vo_description = document.getElementById('editVoDesc').value.trim();
-        const vo_amount = parseFloat(document.getElementById('editVoAmt').value);
-
-        if(!vo_description || isNaN(vo_amount)) return alert("请填写完整的 VO 信息！");
-
-        await fetch(`${SUPABASE_URL}/subcon_vo_records?id=eq.${id}`, {
-            method: "PATCH",
-            headers: reqHeaders,
-            body: JSON.stringify({ vo_date, vo_description, vo_amount })
-        });
-        closeEditVoModal();
-        await fetchSubconData();
-        renderSubconDashboard();
-        alert("✅ VO 变更记录已修改更新！");
-    }
-
-    async function deleteVoRecord(voId) {
-        if(!confirm("确定要删除这条追加 VO 记录吗？")) return;
-        await fetch(`${SUPABASE_URL}/subcon_vo_records?id=eq.${voId}`, {
-            method: "DELETE",
-            headers: reqHeaders
-        });
-        await fetchSubconData();
-        renderSubconDashboard();
-        alert("VO 记录已删除！");
     }
 
     async function fetchPettyCash() {
