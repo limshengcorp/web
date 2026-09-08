@@ -817,17 +817,22 @@
 
 <div id="claimPvModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-3">
-        <h3 class="text-base font-bold text-slate-900 border-b pb-2">🧾 确认已报销付款 (Claimed)</h3>
+        <h3 id="claimModalTitle" class="text-base font-bold text-slate-900 border-b pb-2">🧾 确认已报销付款 (Claimed)</h3>
         <input type="hidden" id="claimTargetType">
         <input type="hidden" id="claimTargetId">
         <p class="text-xs text-slate-600">请输入本次出账对应的公司付款单号 (Payment Voucher)：</p>
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">PV 凭证编号 (必填)</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">PV 凭证编号 (可随时修改纠错)</label>
             <input type="text" id="claimPvInput" required placeholder="如: PV2026-09-001" class="w-full px-3 py-2 border rounded-xl text-sm font-mono font-bold">
         </div>
-        <div class="flex justify-end gap-2 pt-2 border-t">
-            <button type="button" onclick="closeClaimPvModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
-            <button type="button" onclick="submitClaimPv()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer">确认报销</button>
+        <div class="flex justify-between items-center pt-2 border-t">
+            <button type="button" onclick="submitUnclaim()" id="unclaimBtn" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold cursor-pointer hidden">
+                🔄 撤销 Claimed 状态
+            </button>
+            <div class="flex gap-2 ml-auto">
+                <button type="button" onclick="closeClaimPvModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer">取消</button>
+                <button type="button" onclick="submitClaimPv()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer">保存 / 确认</button>
+            </div>
         </div>
     </div>
 </div>
@@ -2181,7 +2186,7 @@
                     let claimHtml = '';
                     if (isPrivate) {
                         if (p.is_claimed) {
-                            claimHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">✅ Claimed (${escapeHtml(p.claimed_pv)})</span>`;
+                            claimHtml = `<span onclick="openClaimModal('subcon', ${p.id})" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 cursor-pointer" title="点击修改 PV 或撤销">✅ Claimed (${escapeHtml(p.claimed_pv)}) ✏️</span>`;
                         } else {
                             claimHtml = `<button onclick="openClaimModal('subcon', ${p.id})" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">📌 书记点击 Claim</button>`;
                         }
@@ -2491,7 +2496,7 @@
 
                 let claimHtml = '';
                 if (item.is_claimed) {
-                    claimHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">✅ Claimed (${escapeHtml(item.pv_number)})</span>`;
+                    claimHtml = `<span onclick="openClaimModal('petty', ${item.id})" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 cursor-pointer inline-block" title="点击修改 PV 或撤销">✅ Claimed (${escapeHtml(item.pv_number)}) ✏️</span>`;
                 } else {
                     claimHtml = `<button onclick="openClaimModal('petty', ${item.id})" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-xs cursor-pointer">📌 书记 Claim</button>`;
                 }
@@ -2693,9 +2698,31 @@
     function openClaimModal(targetType, id) {
         document.getElementById('claimTargetType').value = targetType;
         document.getElementById('claimTargetId').value = id;
-        document.getElementById('claimPvInput').value = '';
+        
+        let currentPv = '';
+        const unclaimBtn = document.getElementById('unclaimBtn');
+
+        if (targetType === 'subcon') {
+            const p = subconPayments.find(x => x.id === id);
+            if (p && p.is_claimed) currentPv = p.claimed_pv || '';
+        } else {
+            const item = pettyCashList.find(x => x.id === id);
+            if (item && item.is_claimed) currentPv = item.pv_number || '';
+        }
+
+        const pvInput = document.getElementById('claimPvInput');
+        pvInput.value = currentPv;
+
+        if (currentPv) {
+            document.getElementById('claimModalTitle').innerText = "✏️ 修改已 Claimed 的 PV 编号";
+            unclaimBtn.classList.remove('hidden'); // 显示撤回 Claimed 按钮
+        } else {
+            document.getElementById('claimModalTitle').innerText = "🧾 确认已报销付款 (Claimed)";
+            unclaimBtn.classList.add('hidden');
+        }
+
         document.getElementById('claimPvModal').classList.remove('hidden');
-        document.getElementById('claimPvInput').focus();
+        pvInput.focus();
     }
 
     function closeClaimPvModal() {
@@ -2729,6 +2756,34 @@
 
         closeClaimPvModal();
         alert(`✅ 报销登记成功！已绑定凭证编号: ${pv}`);
+    }
+
+    async function submitUnclaim() {
+        const targetType = document.getElementById('claimTargetType').value;
+        const id = document.getElementById('claimTargetId').value;
+
+        if (!confirm("确定要撤销该笔流水的 Claimed 状态吗？撤销后将恢复为未报销（待 Claim）状态。")) return;
+
+        if (targetType === 'subcon') {
+            await fetch(`${SUPABASE_URL}/subcon_payments?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ is_claimed: false, claimed_pv: '' })
+            });
+            await fetchSubconData();
+            renderSubconDashboard();
+        } else {
+            await fetch(`${SUPABASE_URL}/marco_petty_cash?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ is_claimed: false, pv_number: '', claimed_at: null })
+            });
+            await fetchPettyCash();
+            renderPettyCashTable();
+        }
+
+        closeClaimPvModal();
+        alert("✅ 已成功撤销 Claimed 状态！");
     }
 
     function escapeHtml(text) {
