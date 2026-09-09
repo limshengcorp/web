@@ -39,14 +39,18 @@
         </div>
 
         <!-- 标签页切换 -->
-        <div class="flex border-b border-slate-200 gap-2 pt-1">
+        <div class="flex border-b border-slate-200 gap-2 pt-1 overflow-x-auto">
             <button id="tabBillingBtn" type="button" onclick="switchPortion('billing')"
-                class="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer">
+                class="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                 🎮 充值流水
             </button>
             <button id="tabGiftBtn" type="button" onclick="switchPortion('gift')"
-                class="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer">
+                class="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                 🎁 开荒礼包发放
+            </button>
+            <button id="tabExpenseBtn" type="button" onclick="switchPortion('expense')"
+                class="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-rose-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                💸 运营开销与成本
             </button>
         </div>
     </div>
@@ -74,7 +78,7 @@
             </div>
         </div>
 
-        <!-- 录入成功核对提示条 (帮助客服核对刚刚录入的内容) -->
+        <!-- 录入成功核对提示条 -->
         <div id="recentSubmitBanner" class="hidden p-4 bg-emerald-50 border border-emerald-300 rounded-xl space-y-1">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
@@ -168,7 +172,7 @@
             </form>
         </div>
 
-        <!-- 客服会话临时历史 (仅本次开着网页时可见，刷新/重开立刻清空消失) -->
+        <!-- 客服会话临时历史 -->
         <div id="sessionHistoryArea" class="bg-white p-4 sm:p-5 rounded-xl shadow-sm space-y-3">
             <div class="flex items-center justify-between">
                 <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
@@ -177,13 +181,12 @@
                 </h3>
                 <span id="sessionCountBadge" class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">0 笔</span>
             </div>
-            
             <div id="sessionHistoryList" class="space-y-2">
                 <div class="text-center py-5 text-xs text-slate-400">本次尚未录入数据</div>
             </div>
         </div>
 
-        <!-- 统计图表 (仅管理员可见) -->
+        <!-- 统计图表 (管理员可见) -->
         <div id="adminBillingCharts" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm">
                 <h3 class="text-sm font-bold text-slate-700 mb-2">📊 近 7 天流水趋势 (RM)</h3>
@@ -195,7 +198,7 @@
             </div>
         </div>
 
-        <!-- 充值明细列表 (仅管理员可见) -->
+        <!-- 充值明细列表 (管理员可见) -->
         <div id="adminBillingTableArea" class="hidden bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <h3 class="font-bold text-slate-800 text-sm sm:text-base">📋 充值流水明细 (管理员全量视图)</h3>
@@ -203,7 +206,6 @@
                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             </div>
 
-            <!-- 电脑端：标准表格显示 -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
@@ -221,8 +223,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- 手机端：自适应横向卡片流显示 -->
             <div id="recordMobileCards" class="block md:hidden divide-y divide-slate-100 p-2 space-y-2"></div>
         </div>
 
@@ -283,7 +283,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">微信 / FB 名字</label>
                         <input type="text" id="giftSocialName" required placeholder="对方社交名字/账号"
-                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -319,15 +319,12 @@
             </form>
         </div>
 
-        <!-- 礼包清单列表 -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <h3 class="font-bold text-slate-800 text-sm sm:text-base">📋 开荒礼包已发放清单</h3>
                 <input type="text" id="giftSearchInput" oninput="filterGiftTable()" placeholder="🔍 搜索账号 ID、微信/FB 或礼包..."
                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-amber-500">
             </div>
-
-            <!-- 电脑端：标准表格 -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
@@ -346,20 +343,122 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- 手机端：自适应横向卡片流显示 -->
             <div id="giftMobileCards" class="block md:hidden divide-y divide-slate-100 p-2 space-y-2"></div>
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- PORTION 3: 运营开销与成本支出部分 (新增)                         -->
+    <!-- ============================================================== -->
+    <div id="portionExpense" class="space-y-4 sm:space-y-6 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div class="bg-gradient-to-br from-rose-600 to-red-800 text-white p-4 sm:p-5 rounded-xl shadow-sm">
+                <div class="text-xs opacity-80 uppercase tracking-wider font-semibold">今日总开销支出</div>
+                <div class="text-2xl font-extrabold mt-1">RM <span id="expenseTodayTotal">0.00</span></div>
+                <div class="text-xs mt-1 opacity-90" id="expenseTodayCount">今日共 0 笔支出</div>
+            </div>
+            <div class="bg-gradient-to-br from-orange-500 to-amber-700 text-white p-4 sm:p-5 rounded-xl shadow-sm">
+                <div class="text-xs opacity-80 uppercase tracking-wider font-semibold">全周期累计总开销</div>
+                <div class="text-2xl font-extrabold mt-1">RM <span id="expenseGrandTotal">0.00</span></div>
+                <div class="text-xs mt-1 opacity-90" id="expenseTotalCount">全周期共 0 笔支出</div>
+            </div>
+        </div>
+
+        <!-- 录入开销表单 -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm space-y-4">
+            <h2 class="text-sm sm:text-base font-bold text-slate-800">💸 登记运营开销 / 服务器与广告成本</h2>
+            <form id="expenseForm" onsubmit="saveExpense(event)" class="space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">支出日期</label>
+                        <input type="date" id="expenseDate" required
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white cursor-pointer focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">开销/成本分类</label>
+                        <select id="expenseCategory" required
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-rose-500 focus:outline-none cursor-pointer">
+                            <option value="服务器与云服务">🖥️ 服务器与云服务</option>
+                            <option value="广告与买量投放">📢 广告与买量投放</option>
+                            <option value="美术与外包支持">🎨 美术与外包支持</option>
+                            <option value="渠道手续费/分成">💳 渠道手续费/分成</option>
+                            <option value="其他日常运营开销">📦 其他日常运营开销</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">支出项目名称 / 用途说明</label>
+                        <input type="text" id="expenseTitle" required placeholder="如: AWS 阿里云 9月续费"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">支出金额 (RM)</label>
+                        <input type="number" step="0.01" id="expenseAmount" required placeholder="0.00"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none font-mono font-bold text-rose-700">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">经办人 / 财务操作人</label>
+                        <input type="text" id="expenseOperator" required placeholder="输入你的名字或代号"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">详细备注 (选填)</label>
+                        <input type="text" id="expenseNote" placeholder="例如：单据凭证编号、付款账户等"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button type="submit" id="expenseSubmitBtn"
+                        class="w-full md:w-56 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-sm shadow transition cursor-pointer">
+                        💸 确认并保存开销支出
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 开销明细列表 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base">📋 运营开销与成本支出明细</h3>
+                <input type="text" id="expenseSearchInput" oninput="filterExpenseTable()" placeholder="🔍 搜索分类、项目或经办人..."
+                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-rose-500">
+            </div>
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase">
+                            <th class="p-3.5">日期</th>
+                            <th class="p-3.5">分类</th>
+                            <th class="p-3.5">项目与用途</th>
+                            <th class="p-3.5">经办人</th>
+                            <th class="p-3.5">备注</th>
+                            <th class="p-3.5">支出金额 (RM)</th>
+                            <th class="p-3.5 text-right">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody" class="divide-y divide-slate-100">
+                        <tr><td colspan="7" class="p-6 text-center text-slate-400">正在同步开销记录...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="expenseMobileCards" class="block md:hidden divide-y divide-slate-100 p-2 space-y-2"></div>
+        </div>
+    </div>
+
 </div>
+
+<!-- ============================================================== -->
+<!-- 弹窗部分：充值修改、礼包修改、开销修改                            -->
+<!-- ============================================================== -->
 
 <!-- 充值流水修改弹窗 -->
 <div id="editBillingModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-xl shadow-xl max-w-xl w-full p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <h3 class="text-base font-bold text-slate-800 border-b pb-2">✏️ 修改充值记录</h3>
         <input type="hidden" id="editBillingId">
-        
         <div class="space-y-3 sm:space-y-4 text-xs font-semibold text-slate-600">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -378,7 +477,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2.5">
                 <span class="text-xs font-bold text-slate-700">点击调整包含的项目：</span>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -398,7 +496,6 @@
                         <span class="text-xs text-indigo-600 font-bold ml-auto">RM 50</span>
                     </label>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">购买元宝金额 (RM)</label>
@@ -416,18 +513,15 @@
                     </div>
                 </div>
             </div>
-
             <div class="flex items-center justify-between p-3 bg-indigo-50/50 rounded-lg border border-indigo-100">
                 <span class="text-xs text-slate-600 font-medium">调整后总金额:</span>
                 <span class="text-lg sm:text-xl font-black text-indigo-700 font-mono">RM <span id="editDisplayTotal">0.00</span></span>
             </div>
-
             <div>
                 <label class="block mb-1">额外备注 (选填)</label>
                 <input type="text" id="editBillingNote" placeholder="输入备注、时间等" class="w-full p-2 border rounded-lg text-sm">
             </div>
         </div>
-
         <div class="flex justify-end gap-2 pt-3 border-t">
             <button type="button" onclick="closeEditBillingModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs sm:text-sm font-medium cursor-pointer">取消</button>
             <button type="button" id="submitEditBillingBtn" onclick="submitEditBilling()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">保存修改</button>
@@ -489,6 +583,52 @@
     </div>
 </div>
 
+<!-- 开销支出修改弹窗 (新增) -->
+<div id="editExpenseModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4">
+        <h3 class="text-base font-bold text-slate-800 border-b pb-2">✏️ 修改运营开销记录</h3>
+        <input type="hidden" id="editExpenseId">
+        <div class="space-y-3 text-xs font-semibold text-slate-600">
+            <div>
+                <label class="block mb-1">支出日期</label>
+                <input type="date" id="editExpenseDate" class="w-full p-2 border rounded-lg text-sm bg-white">
+            </div>
+            <div>
+                <label class="block mb-1">开销/成本分类</label>
+                <select id="editExpenseCategory" class="w-full p-2 border rounded-lg text-sm bg-white">
+                    <option value="服务器与云服务">🖥️ 服务器与云服务</option>
+                    <option value="广告与买量投放">📢 广告与买量投放</option>
+                    <option value="美术与外包支持">🎨 美术与外包支持</option>
+                    <option value="渠道手续费/分成">💳 渠道手续费/分成</option>
+                    <option value="其他日常运营开销">📦 其他日常运营开销</option>
+                </select>
+            </div>
+            <div>
+                <label class="block mb-1">支出项目名称 / 用途说明</label>
+                <input type="text" id="editExpenseTitle" class="w-full p-2 border rounded-lg text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block mb-1">支出金额 (RM)</label>
+                    <input type="number" step="0.01" id="editExpenseAmount" class="w-full p-2 border rounded-lg text-sm font-mono font-bold text-rose-700">
+                </div>
+                <div>
+                    <label class="block mb-1">经办人</label>
+                    <input type="text" id="editExpenseOperator" class="w-full p-2 border rounded-lg text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block mb-1">详细备注</label>
+                <input type="text" id="editExpenseNote" class="w-full p-2 border rounded-lg text-sm">
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+            <button type="button" onclick="closeEditExpenseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs sm:text-sm font-medium cursor-pointer">取消</button>
+            <button type="button" id="submitEditExpenseBtn" onclick="submitEditExpense()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">保存修改</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const ADMIN_PASSWORD = "8888";
 
@@ -506,7 +646,8 @@
     let isAdmin = localStorage.getItem('game_admin_auth') === 'true';
     let allBillingRecords = [];
     let allGiftRecords = [];
-    let sessionBillingRecords = []; // 伙伴端仅在本次开着网页时保存在内存中，刷新自动清空
+    let allExpenseRecords = []; // 新增：开销记录数据源
+    let sessionBillingRecords = []; 
     let trendChartInstance = null;
     let productChartInstance = null;
 
@@ -518,6 +659,7 @@
         const todayStr = `${y}-${m}-${day}`;
         document.getElementById('formDate').value = todayStr;
         document.getElementById('giftDate').value = todayStr;
+        document.getElementById('expenseDate').value = todayStr; // 新增：开销默认今天
     }
     initDate();
 
@@ -527,6 +669,7 @@
             loadRecords();
         }
         loadGiftRecords();
+        loadExpenseRecords(); // 新增：加载开销记录
     });
 
     function toggleAdminAuth() {
@@ -563,7 +706,7 @@
             adminDashboard.classList.remove('hidden');
             adminCharts.classList.remove('hidden');
             adminTableArea.classList.remove('hidden');
-            sessionArea.classList.add('hidden'); // 管理员直接看全量，无需临时列表
+            sessionArea.classList.add('hidden');
             staffTip.classList.add('hidden');
             exportBtn.classList.remove('hidden');
             toggleBtn.innerText = "🔒 退出管理";
@@ -590,26 +733,38 @@
         currentTab = tab;
         const billingDiv = document.getElementById('portionBilling');
         const giftDiv = document.getElementById('portionGift');
+        const expenseDiv = document.getElementById('portionExpense'); // 新增
         const tabBillingBtn = document.getElementById('tabBillingBtn');
         const tabGiftBtn = document.getElementById('tabGiftBtn');
+        const tabExpenseBtn = document.getElementById('tabExpenseBtn'); // 新增
         const exportBtn = document.getElementById('exportBtn');
+
+        // 先全部隐藏
+        billingDiv.classList.add('hidden');
+        giftDiv.classList.add('hidden');
+        expenseDiv.classList.add('hidden');
+
+        // 默认重置按钮样式
+        tabBillingBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
+        tabGiftBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-amber-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
+        tabExpenseBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-rose-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
 
         if (tab === 'billing') {
             billingDiv.classList.remove('hidden');
-            giftDiv.classList.add('hidden');
-            tabBillingBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer";
-            tabGiftBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer";
+            tabBillingBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
             if (!isAdmin) {
                 exportBtn.classList.add('hidden');
             } else {
                 exportBtn.classList.remove('hidden');
                 if (trendChartInstance) trendChartInstance.update();
             }
-        } else {
-            billingDiv.classList.add('hidden');
+        } else if (tab === 'gift') {
             giftDiv.classList.remove('hidden');
-            tabGiftBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center gap-1.5 cursor-pointer";
-            tabBillingBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-amber-600 transition flex items-center gap-1.5 cursor-pointer";
+            tabGiftBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
+            exportBtn.classList.remove('hidden');
+        } else if (tab === 'expense') {
+            expenseDiv.classList.remove('hidden');
+            tabExpenseBtn.className = "px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border-b-2 border-rose-600 text-rose-600 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
             exportBtn.classList.remove('hidden');
         }
     }
@@ -617,8 +772,10 @@
     function refreshCurrentTab() {
         if (currentTab === 'billing') {
             if (isAdmin) loadRecords();
-        } else {
+        } else if (currentTab === 'gift') {
             loadGiftRecords();
+        } else if (currentTab === 'expense') {
+            loadExpenseRecords();
         }
     }
 
@@ -681,7 +838,6 @@
 
     async function saveRecord(e) {
         e.preventDefault();
-
         const totalAmount = calcTotalAmount();
         const account_id = document.getElementById('formAccountId').value.trim();
         const record_date = document.getElementById('formDate').value;
@@ -695,17 +851,15 @@
         if (document.getElementById('itemFund').checked) productList.push('成长基金(50)');
         if (document.getElementById('itemVipCard').checked) productList.push('至尊月卡(100)');
         if (document.getElementById('itemNormalCard').checked) productList.push('江湖月卡(50)');
-
         const yb = parseFloat(document.getElementById('itemYuanbao').value);
         if (!isNaN(yb) && yb > 0) productList.push(`元宝(${yb})`);
-
         const otherAmt = parseFloat(document.getElementById('itemOtherAmount').value);
         const otherNote = document.getElementById('itemOtherNote').value.trim();
         if (!isNaN(otherAmt) && otherAmt > 0) {
             productList.push(otherNote ? `${otherNote}(${otherAmt})` : `定制道具(${otherAmt})`);
         }
-
         const product_type = productList.join(' + ');
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerText = '提交中...';
@@ -718,7 +872,6 @@
             });
             if (!res.ok) throw new Error((await res.json()).message || `HTTP ${res.status}`);
 
-            // 1. 顶部即时核对提示框
             const banner = document.getElementById('recentSubmitBanner');
             const details = document.getElementById('recentSubmitDetails');
             const now = new Date();
@@ -726,19 +879,9 @@
             details.innerHTML = `【时间】${timeStr} ｜ 【账号】${escapeHtml(account_id)} ｜ 【来源】${platform} ｜ 【金额】RM ${totalAmount.toFixed(2)}<br>【项目】${escapeHtml(product_type)} ${note ? `(${escapeHtml(note)})` : ''}`;
             banner.classList.remove('hidden');
 
-            // 2. 加入本次会话临时历史列表（刷新网页即自动清除）
-            sessionBillingRecords.unshift({
-                time: timeStr,
-                record_date,
-                account_id,
-                platform,
-                product_type,
-                amount: totalAmount,
-                note
-            });
+            sessionBillingRecords.unshift({ time: timeStr, record_date, account_id, platform, product_type, amount: totalAmount, note });
             renderSessionList();
 
-            // 重置表单输入
             document.getElementById('formAccountId').value = '';
             document.getElementById('formBillingNote').value = '';
             document.getElementById('itemFund').checked = false;
@@ -750,9 +893,7 @@
             calcTotalAmount();
             document.getElementById('formAccountId').focus();
 
-            if (isAdmin) {
-                await loadRecords();
-            }
+            if (isAdmin) await loadRecords();
         } catch (err) {
             alert("保存失败: " + err.message);
         } finally {
@@ -761,7 +902,6 @@
         }
     }
 
-    // 渲染客服本次临时列表
     function renderSessionList() {
         const container = document.getElementById('sessionHistoryList');
         const badge = document.getElementById('sessionCountBadge');
@@ -776,7 +916,6 @@
         sessionBillingRecords.forEach(item => {
             const isWX = item.platform === '微信';
             const badgeClass = isWX ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800';
-
             const div = document.createElement('div');
             div.className = 'p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs';
             div.innerHTML = `
@@ -788,9 +927,7 @@
                     </div>
                     <div class="text-slate-600">${escapeHtml(item.product_type)} ${item.note ? `<span class="text-slate-400">(${escapeHtml(item.note)})</span>` : ''}</div>
                 </div>
-                <div class="font-mono font-bold text-indigo-700 text-sm self-end sm:self-center">
-                    RM ${Number(item.amount).toFixed(2)}
-                </div>
+                <div class="font-mono font-bold text-indigo-700 text-sm self-end sm:self-center">RM ${Number(item.amount).toFixed(2)}</div>
             `;
             container.appendChild(div);
         });
@@ -838,6 +975,7 @@
         document.getElementById('editBillingModal').classList.add('hidden');
     }
 
+    // ⭐ Supabase UPDATE (PATCH) 充值记录核心方法
     async function submitEditBilling() {
         const id = document.getElementById('editBillingId').value;
         const record_date = document.getElementById('editBillingDate').value;
@@ -853,22 +991,21 @@
         if (document.getElementById('editItemFund').checked) productList.push('成长基金(50)');
         if (document.getElementById('editItemVipCard').checked) productList.push('至尊月卡(100)');
         if (document.getElementById('editItemNormalCard').checked) productList.push('江湖月卡(50)');
-
         const yb = parseFloat(document.getElementById('editItemYuanbao').value);
         if (!isNaN(yb) && yb > 0) productList.push(`元宝(${yb})`);
-
         const otherAmt = parseFloat(document.getElementById('editItemOtherAmount').value);
         const otherNote = document.getElementById('editItemOtherNote').value.trim();
         if (!isNaN(otherAmt) && otherAmt > 0) {
             productList.push(otherNote ? `${otherNote}(${otherAmt})` : `定制道具(${otherAmt})`);
         }
-
         const product_type = productList.join(' + ');
+
         const btn = document.getElementById('submitEditBillingBtn');
         btn.disabled = true;
         btn.innerText = '正在保存...';
 
         try {
+            // 使用标准 Supabase REST PATCH 语法进行更新
             const res = await fetch(`${SUPABASE_BASE}/recharge_records?id=eq.${id}`, {
                 method: "PATCH",
                 headers: reqHeaders,
@@ -952,10 +1089,8 @@
                 else if (p.includes('成长基金')) badgeStyle = 'bg-blue-100 text-blue-800';
                 badgesHtml += `<span class="inline-block text-xs px-2 py-0.5 rounded font-medium mr-1.5 mb-1 ${badgeStyle}">${escapeHtml(p)}</span>`;
             });
-
             const noteDisplay = item.note ? `<span class="text-xs text-slate-400 font-normal ml-1">(${escapeHtml(item.note)})</span>` : '';
 
-            // 1. 电脑端标准表格行
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50 transition';
             tr.innerHTML = `
@@ -971,22 +1106,14 @@
             `;
             tbody.appendChild(tr);
 
-            // 2. 手机端自适应卡片 (横排展示，不竖排截断)
             const card = document.createElement('div');
             card.className = 'p-3 bg-white rounded-lg border border-slate-100 shadow-sm space-y-2';
             card.innerHTML = `
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        ${platformBadge}
-                        <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.account_id)}</span>
-                    </div>
-                    <div class="text-sm font-black font-mono text-indigo-700">
-                        RM ${Number(item.amount).toFixed(2)}
-                    </div>
+                    <div class="flex items-center gap-2">${platformBadge}<span class="font-bold text-slate-900 text-sm">${escapeHtml(item.account_id)}</span></div>
+                    <div class="text-sm font-black font-mono text-indigo-700">RM ${Number(item.amount).toFixed(2)}</div>
                 </div>
-                <div class="text-xs leading-relaxed">
-                    ${badgesHtml} ${noteDisplay}
-                </div>
+                <div class="text-xs leading-relaxed">${badgesHtml} ${noteDisplay}</div>
                 <div class="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-50">
                     <span class="font-mono">${item.record_date}</span>
                     <div class="space-x-3">
@@ -1024,10 +1151,8 @@
         }
 
         const productMap = {};
-
         records.forEach(r => {
             if (dayMap[r.record_date] !== undefined) dayMap[r.record_date] += Number(r.amount);
-
             const items = (r.product_type || '').split(' + ');
             items.forEach(it => {
                 let name = it.replace(/\(\d+(\.\d+)?\)/, '').trim();
@@ -1035,7 +1160,6 @@
                 const match = it.match(/\((\d+(\.\d+)?)\)/);
                 if (match) amt = parseFloat(match[1]);
                 else amt = Number(r.amount);
-
                 productMap[name] = (productMap[name] || 0) + amt;
             });
         });
@@ -1046,12 +1170,7 @@
             type: 'bar',
             data: {
                 labels: last7Days.map(d => d.slice(5)),
-                datasets: [{
-                    label: '充值金额 (RM)',
-                    data: last7Days.map(d => dayMap[d]),
-                    backgroundColor: '#6366f1',
-                    borderRadius: 4
-                }]
+                datasets: [{ label: '充值金额 (RM)', data: last7Days.map(d => dayMap[d]), backgroundColor: '#6366f1', borderRadius: 4 }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
@@ -1062,10 +1181,7 @@
             type: 'doughnut',
             data: {
                 labels: Object.keys(productMap).length ? Object.keys(productMap) : ['暂无数据'],
-                datasets: [{
-                    data: Object.values(productMap).length ? Object.values(productMap) : [1],
-                    backgroundColor: ['#f59e0b', '#8b5cf6', '#6366f1', '#3b82f6', '#10b981', '#ec4899', '#64748b']
-                }]
+                datasets: [{ data: Object.values(productMap).length ? Object.values(productMap) : [1], backgroundColor: ['#f59e0b', '#8b5cf6', '#6366f1', '#3b82f6', '#10b981', '#ec4899', '#64748b'] }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
@@ -1079,7 +1195,6 @@
             const res = await fetch(`${SUPABASE_BASE}/gift_records?select=*&order=gift_date.desc,id.desc`, { headers: reqHeaders });
             if (!res.ok) throw new Error((await res.json()).message);
             allGiftRecords = await res.json();
-
             renderGiftDashboard(allGiftRecords);
             renderGiftTable(allGiftRecords);
         } catch (err) {
@@ -1098,7 +1213,6 @@
         }
 
         const found = allGiftRecords.find(item => item.account_id.toLowerCase() === inputId);
-
         if (found) {
             alertText.innerText = `【警告】该账号 [${found.account_id}] 已在 ${found.gift_date} 领取过 [${found.gift_name}]（角色: ${found.player_name}，${found.platform || '社交'}: ${found.social_name || '-'}），请勿重复发放！`;
             alertBox.classList.remove('hidden');
@@ -1111,10 +1225,9 @@
 
     async function saveGift(e) {
         e.preventDefault();
-
         const duplicate = checkDuplicateGiftId();
         if (duplicate) {
-            const proceed = confirm(`⚠️ 严重警告：系统检测到账号 [${duplicate.account_id}] 已经领过开荒礼包了！\n\n领取时间: ${duplicate.gift_date}\n角色名: ${duplicate.player_name}\n渠道: ${duplicate.platform || '社交'} - ${duplicate.social_name || '-'}\n\n你确定仍然要再次发放吗？`);
+            const proceed = confirm(`⚠️ 严重警告：系统检测到账号 [${duplicate.account_id}] 已经领过开荒礼包了！\n\n领取时间: ${duplicate.gift_date}\n角色名: ${duplicate.player_name}\n\n你确定仍然要再次发放吗？`);
             if (!proceed) return;
         }
 
@@ -1136,7 +1249,6 @@
                 headers: reqHeaders,
                 body: JSON.stringify([{ gift_date, account_id, player_name, platform, social_name, gift_name, note }])
             });
-
             if (!res.ok) throw new Error((await res.json()).message || `HTTP ${res.status}`);
 
             document.getElementById('giftAccountId').value = '';
@@ -1176,6 +1288,7 @@
         document.getElementById('editGiftModal').classList.add('hidden');
     }
 
+    // ⭐ Supabase UPDATE (PATCH) 礼包记录核心方法
     async function submitEditGift() {
         const id = document.getElementById('editGiftId').value;
         const gift_date = document.getElementById('editGiftDate').value;
@@ -1229,10 +1342,7 @@
     function renderGiftDashboard(records) {
         const today = document.getElementById('giftDate').value;
         let todayCount = 0;
-        records.forEach(r => {
-            if (r.gift_date === today) todayCount++;
-        });
-
+        records.forEach(r => { if (r.gift_date === today) todayCount++; });
         document.getElementById('giftTotalCount').innerText = records.length;
         document.getElementById('giftTodayCount').innerText = todayCount;
     }
@@ -1253,7 +1363,6 @@
             const isWX = (item.platform || '微信') === '微信';
             const badgeClass = isWX ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800';
 
-            // 1. 电脑端标准表格行
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50 transition';
             tr.innerHTML = `
@@ -1264,11 +1373,7 @@
                     <span class="text-xs px-2 py-0.5 rounded font-medium ${badgeClass}">${escapeHtml(item.platform || '微信')}</span>
                     <span class="text-xs text-slate-700 font-medium ml-1">${escapeHtml(item.social_name || '-')}</span>
                 </td>
-                <td class="p-3.5 whitespace-nowrap">
-                    <span class="text-xs px-2.5 py-0.5 rounded font-medium bg-amber-100 text-amber-800">
-                        ${escapeHtml(item.gift_name)}
-                    </span>
-                </td>
+                <td class="p-3.5 whitespace-nowrap"><span class="text-xs px-2.5 py-0.5 rounded font-medium bg-amber-100 text-amber-800">${escapeHtml(item.gift_name)}</span></td>
                 <td class="p-3.5 text-xs text-slate-500">${escapeHtml(item.note || '-')}</td>
                 <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
                     <button type="button" onclick="openEditGift(${item.id})" class="text-xs text-amber-600 hover:text-amber-800 hover:underline cursor-pointer">修改</button>
@@ -1277,18 +1382,12 @@
             `;
             tbody.appendChild(tr);
 
-            // 2. 手机端自适应卡片 (彻底解决截图里竖排字 Bug)
             const card = document.createElement('div');
             card.className = 'p-3 bg-white rounded-lg border border-slate-100 shadow-sm space-y-2';
             card.innerHTML = `
                 <div class="flex items-center justify-between">
-                    <div>
-                        <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.account_id)}</span>
-                        <span class="text-xs font-semibold text-amber-900 ml-1.5">(${escapeHtml(item.player_name)})</span>
-                    </div>
-                    <span class="text-xs px-2 py-0.5 rounded font-medium bg-amber-100 text-amber-800 font-medium whitespace-nowrap">
-                        ${escapeHtml(item.gift_name)}
-                    </span>
+                    <div><span class="font-bold text-slate-900 text-sm">${escapeHtml(item.account_id)}</span><span class="text-xs font-semibold text-amber-900 ml-1.5">(${escapeHtml(item.player_name)})</span></div>
+                    <span class="text-xs px-2 py-0.5 rounded font-medium bg-amber-100 text-amber-800 font-medium whitespace-nowrap">${escapeHtml(item.gift_name)}</span>
                 </div>
                 <div class="text-xs text-slate-600 flex items-center gap-1.5 flex-wrap">
                     <span class="px-1.5 py-0.5 rounded font-medium ${badgeClass}">${escapeHtml(item.platform || '微信')}</span>
@@ -1321,6 +1420,218 @@
     }
 
     // ==============================================================
+    // PORTION 3: 运营开销与成本支出模块 (新增)
+    // ==============================================================
+    async function loadExpenseRecords() {
+        try {
+            // 注意：请在你的 Supabase 数据库中创建对应的表 `expense_records`，字段包括：
+            // id (int8, pk, auto), expense_date (date), category (text), title (text), amount (numeric), operator (text), note (text)
+            const res = await fetch(`${SUPABASE_BASE}/expense_records?select=*&order=expense_date.desc,id.desc`, { headers: reqHeaders });
+            if (!res.ok) {
+                // 如果表尚未创建，会返回错误，这里打印提示但不崩溃
+                console.warn("提示: 尚未检测到 Supabase 的 expense_records 数据表，请按需在 Supabase 中创建。");
+                return;
+            }
+            allExpenseRecords = await res.json();
+            renderExpenseDashboard(allExpenseRecords);
+            renderExpenseTable(allExpenseRecords);
+        } catch (err) {
+            console.error("加载开销记录失败:", err);
+        }
+    }
+
+    async function saveExpense(e) {
+        e.preventDefault();
+        const expense_date = document.getElementById('expenseDate').value;
+        const category = document.getElementById('expenseCategory').value;
+        const title = document.getElementById('expenseTitle').value.trim();
+        const amount = parseFloat(document.getElementById('expenseAmount').value);
+        const operator = document.getElementById('expenseOperator').value.trim();
+        const note = document.getElementById('expenseNote').value.trim();
+
+        if (!title || isNaN(amount) || amount <= 0) return alert('请填写完整的项目名称和合法的支出金额！');
+
+        const btn = document.getElementById('expenseSubmitBtn');
+        btn.disabled = true;
+        btn.innerText = '正在保存...';
+
+        try {
+            const res = await fetch(`${SUPABASE_BASE}/expense_records`, {
+                method: "POST",
+                headers: reqHeaders,
+                body: JSON.stringify([{ expense_date, category, title, amount, operator, note }])
+            });
+
+            if (!res.ok) throw new Error((await res.json()).message || `HTTP ${res.status}`);
+
+            document.getElementById('expenseTitle').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseNote').value = '';
+            document.getElementById('expenseTitle').focus();
+
+            await loadExpenseRecords();
+            alert(`✅ 成功登记运营开销：[${title}] RM ${amount.toFixed(2)}`);
+        } catch (err) {
+            alert("保存开销失败: " + err.message + "\n\n提示：请确保你在 Supabase 中已经建立了名为 `expense_records` 的数据表。");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '💸 确认并保存开销支出';
+        }
+    }
+
+    function openEditExpense(id) {
+        const item = allExpenseRecords.find(r => r.id === id);
+        if (!item) return;
+
+        document.getElementById('editExpenseId').value = item.id;
+        document.getElementById('editExpenseDate').value = item.expense_date;
+        document.getElementById('editExpenseCategory').value = item.category || '服务器与云服务';
+        document.getElementById('editExpenseTitle').value = item.title;
+        document.getElementById('editExpenseAmount').value = item.amount;
+        document.getElementById('editExpenseOperator').value = item.operator || '';
+        document.getElementById('editExpenseNote').value = item.note || '';
+
+        document.getElementById('editExpenseModal').classList.remove('hidden');
+    }
+
+    function closeEditExpenseModal() {
+        document.getElementById('editExpenseModal').classList.add('hidden');
+    }
+
+    // ⭐ Supabase UPDATE (PATCH) 开销记录核心方法
+    async function submitEditExpense() {
+        const id = document.getElementById('editExpenseId').value;
+        const expense_date = document.getElementById('editExpenseDate').value;
+        const category = document.getElementById('editExpenseCategory').value;
+        const title = document.getElementById('editExpenseTitle').value.trim();
+        const amount = parseFloat(document.getElementById('editExpenseAmount').value);
+        const operator = document.getElementById('editExpenseOperator').value.trim();
+        const note = document.getElementById('editExpenseNote').value.trim();
+
+        if (!title || isNaN(amount) || amount <= 0) return alert('请填写完整的项目名称与金额！');
+
+        const btn = document.getElementById('submitEditExpenseBtn');
+        btn.disabled = true;
+        btn.innerText = '正在保存...';
+
+        try {
+            const res = await fetch(`${SUPABASE_BASE}/expense_records?id=eq.${id}`, {
+                method: "PATCH",
+                headers: reqHeaders,
+                body: JSON.stringify({ expense_date, category, title, amount, operator, note })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || `HTTP ${res.status}`);
+            }
+
+            closeEditExpenseModal();
+            await loadExpenseRecords();
+            alert('运营开销记录已成功修改！');
+        } catch (err) {
+            alert("修改失败: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '保存修改';
+        }
+    }
+
+    async function deleteExpenseItem(id) {
+        if (!confirm('确定要删除这笔开销支出记录吗？')) return;
+        try {
+            const res = await fetch(`${SUPABASE_BASE}/expense_records?id=eq.${id}`, { method: "DELETE", headers: reqHeaders });
+            if (!res.ok) throw new Error((await res.json()).message);
+            await loadExpenseRecords();
+        } catch (err) {
+            alert("删除失败: " + err.message);
+        }
+    }
+
+    function renderExpenseDashboard(records) {
+        const today = document.getElementById('expenseDate').value;
+        let todaySum = 0, todayCount = 0, grandSum = 0;
+
+        records.forEach(r => {
+            const val = Number(r.amount);
+            grandSum += val;
+            if (r.expense_date === today) {
+                todaySum += val;
+                todayCount++;
+            }
+        });
+
+        document.getElementById('expenseTodayTotal').innerText = todaySum.toFixed(2);
+        document.getElementById('expenseTodayCount').innerText = `今日共 ${todayCount} 笔支出`;
+        document.getElementById('expenseGrandTotal').innerText = grandSum.toFixed(2);
+        document.getElementById('expenseTotalCount').innerText = `全周期共 ${records.length} 笔支出`;
+    }
+
+    function renderExpenseTable(records) {
+        const tbody = document.getElementById('expenseTableBody');
+        const mobileContainer = document.getElementById('expenseMobileCards');
+        if (!tbody || !mobileContainer) return;
+
+        tbody.innerHTML = '';
+        mobileContainer.innerHTML = '';
+
+        if (records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">暂无运营开销记录（若已建表，请尝试添加）</td></tr>';
+            mobileContainer.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs">暂无运营开销记录</div>';
+            return;
+        }
+
+        records.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50 transition';
+            tr.innerHTML = `
+                <td class="p-3.5 text-slate-500 font-mono text-xs whitespace-nowrap">${item.expense_date}</td>
+                <td class="p-3.5 whitespace-nowrap"><span class="text-xs px-2 py-0.5 rounded font-medium bg-rose-50 text-rose-700">${escapeHtml(item.category)}</span></td>
+                <td class="p-3.5 font-bold text-slate-900">${escapeHtml(item.title)}</td>
+                <td class="p-3.5 text-xs text-slate-700">${escapeHtml(item.operator || '-')}</td>
+                <td class="p-3.5 text-xs text-slate-500">${escapeHtml(item.note || '-')}</td>
+                <td class="p-3.5 font-bold text-rose-700 font-mono whitespace-nowrap">RM ${Number(item.amount).toFixed(2)}</td>
+                <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
+                    <button type="button" onclick="openEditExpense(${item.id})" class="text-xs text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">修改</button>
+                    <button type="button" onclick="deleteExpenseItem(${item.id})" class="text-xs text-slate-400 hover:text-rose-700 hover:underline cursor-pointer">删除</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+
+            const card = document.createElement('div');
+            card.className = 'p-3 bg-white rounded-lg border border-slate-100 shadow-sm space-y-2';
+            card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-0.5 rounded font-medium bg-rose-50 text-rose-700">${escapeHtml(item.category)}</span>
+                    <div class="text-sm font-black font-mono text-rose-700">RM ${Number(item.amount).toFixed(2)}</div>
+                </div>
+                <div class="font-bold text-slate-900 text-sm">${escapeHtml(item.title)}</div>
+                <div class="text-xs text-slate-500 flex items-center justify-between">
+                    <span>经办人: ${escapeHtml(item.operator || '-')} ${item.note ? `· 备注: ${escapeHtml(item.note)}` : ''}</span>
+                    <span class="font-mono">${item.expense_date}</span>
+                </div>
+                <div class="flex items-center justify-end text-xs space-x-3 pt-1 border-t border-slate-50">
+                    <button type="button" onclick="openEditExpense(${item.id})" class="text-rose-600 font-semibold">修改</button>
+                    <button type="button" onclick="deleteExpenseItem(${item.id})" class="text-slate-400 font-semibold">删除</button>
+                </div>
+            `;
+            mobileContainer.appendChild(card);
+        });
+    }
+
+    function filterExpenseTable() {
+        const q = document.getElementById('expenseSearchInput').value.trim().toLowerCase();
+        const filtered = allExpenseRecords.filter(r => 
+            (r.title || '').toLowerCase().includes(q) || 
+            (r.category || '').toLowerCase().includes(q) || 
+            (r.operator || '').toLowerCase().includes(q) || 
+            (r.note || '').toLowerCase().includes(q) ||
+            (r.expense_date || '').includes(q)
+        );
+        renderExpenseTable(filtered);
+    }
+
+    // ==============================================================
     // 导出 CSV
     // ==============================================================
     function exportCurrentCSV() {
@@ -1335,13 +1646,20 @@
                 csv += `"${r.record_date}","${r.platform || '微信'}","${r.account_id}","${r.product_type}","${r.note || ''}",${Number(r.amount).toFixed(2)}\n`;
             });
             downloadCSV(csv, `充值对账流水_${dateStr}.csv`);
-        } else {
+        } else if (currentTab === 'gift') {
             if (allGiftRecords.length === 0) return alert('开荒礼包暂无数据可导出');
             let csv = '\uFEFF发放日期,玩家账号ID,角色名,渠道,微信/FB名字,已发放礼包,备注\n';
             allGiftRecords.forEach(r => {
                 csv += `"${r.gift_date}","${r.account_id}","${r.player_name}","${r.platform || '微信'}","${r.social_name || ''}","${r.gift_name}","${r.note || ''}"\n`;
             });
             downloadCSV(csv, `开荒礼包发放记录_${dateStr}.csv`);
+        } else if (currentTab === 'expense') {
+            if (allExpenseRecords.length === 0) return alert('运营开销暂无数据可导出');
+            let csv = '\uFEFF支出日期,开销分类,项目名称与用途,经办人,备注,支出金额(RM)\n';
+            allExpenseRecords.forEach(r => {
+                csv += `"${r.expense_date}","${r.category}","${r.title}","${r.operator || ''}","${r.note || ''}",${Number(r.amount).toFixed(2)}\n`;
+            });
+            downloadCSV(csv, `运营开销成本明细_${dateStr}.csv`);
         }
     }
 
